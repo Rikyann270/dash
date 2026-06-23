@@ -1,5 +1,6 @@
 import {
   Banknote,
+  BookOpenCheck,
   Calendar,
   ChartBar,
   Fingerprint,
@@ -144,6 +145,58 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
+  {
+    id: 5,
+    label: "School Management",
+    items: [
+      {
+        title: "Overview",
+        url: "/dashboard/school",
+        icon: LayoutDashboard,
+      },
+      {
+        title: "Students",
+        url: "/dashboard/school/students",
+        icon: Users,
+      },
+      {
+        title: "Teachers",
+        url: "/dashboard/school/teachers",
+        icon: GraduationCap,
+      },
+      {
+        title: "Courses",
+        url: "/dashboard/school/courses",
+        icon: BookOpenCheck,
+      },
+      {
+        title: "Classes",
+        url: "/dashboard/school/classes",
+        icon: Calendar,
+      },
+      {
+        title: "Timetable",
+        url: "/dashboard/school/timetable",
+        icon: Calendar,
+      },
+      {
+        title: "Teacher Portal",
+        url: "/dashboard/school/teacher-portal",
+        icon: ListTodo,
+      },
+      {
+        title: "Finance",
+        url: "/dashboard/school/finance",
+        icon: Banknote,
+      },
+      {
+        title: "Student Portal",
+        url: "/dashboard/school/student-portal",
+        icon: GraduationCap,
+      },
+    ],
+  },
+
   {
     id: 3,
     label: "Legacy",

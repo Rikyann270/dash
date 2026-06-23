@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 import { ChevronRight, MailIcon, PlusCircleIcon } from "lucide-react";
 
@@ -39,10 +40,12 @@ const NavItemExpanded = ({
   item,
   isActive,
   isSubmenuOpen,
+  studentUnreadCount,
 }: {
   item: NavMainItem;
   isActive: (url: string, subItems?: NavMainItem["subItems"]) => boolean;
   isSubmenuOpen: (subItems?: NavMainItem["subItems"]) => boolean;
+  studentUnreadCount: number;
 }) => {
   return (
     <Collapsible key={item.title} asChild defaultOpen={isSubmenuOpen(item.subItems)} className="group/collapsible">
@@ -56,6 +59,11 @@ const NavItemExpanded = ({
             >
               {item.icon && <item.icon />}
               <span>{item.title}</span>
+              {item.title === "Student Portal" && studentUnreadCount > 0 && (
+                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-pulse">
+                  {studentUnreadCount}
+                </span>
+              )}
               {item.comingSoon && <IsComingSoon />}
               <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
             </SidebarMenuButton>
@@ -69,6 +77,11 @@ const NavItemExpanded = ({
               <Link prefetch={false} href={item.url} target={item.newTab ? "_blank" : undefined}>
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
+                {item.title === "Student Portal" && studentUnreadCount > 0 && (
+                  <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-pulse">
+                    {studentUnreadCount}
+                  </span>
+                )}
                 {item.comingSoon && <IsComingSoon />}
               </Link>
             </SidebarMenuButton>
@@ -99,9 +112,11 @@ const NavItemExpanded = ({
 const NavItemCollapsed = ({
   item,
   isActive,
+  studentUnreadCount,
 }: {
   item: NavMainItem;
   isActive: (url: string, subItems?: NavMainItem["subItems"]) => boolean;
+  studentUnreadCount: number;
 }) => {
   return (
     <SidebarMenuItem key={item.title}>
@@ -114,6 +129,9 @@ const NavItemCollapsed = ({
           >
             {item.icon && <item.icon />}
             <span>{item.title}</span>
+            {item.title === "Student Portal" && studentUnreadCount > 0 && (
+              <span className="ml-auto flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+            )}
             <ChevronRight />
           </SidebarMenuButton>
         </DropdownMenuTrigger>
@@ -144,6 +162,41 @@ const NavItemCollapsed = ({
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
   const { state, isMobile } = useSidebar();
+  const [studentUnreadCount, setStudentUnreadCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchUnread() {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        
+        // Fetch first student for demo context
+        const { data: student } = await supabase
+          .from("students")
+          .select("id")
+          .limit(1)
+          .single();
+
+        if (student) {
+          const { count } = await supabase
+            .from("notifications")
+            .select("*", { count: "exact", head: true })
+            .eq("student_id", student.id)
+            .eq("is_read", false);
+          
+          setStudentUnreadCount(count || 0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch unread notifications count for sidebar:", err);
+      }
+    }
+
+    fetchUnread();
+    
+    // Set up polling interval to fetch every 10 seconds
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
+  }, [path]); // Fetch again on navigation path changes
 
   const isItemActive = (url: string, subItems?: NavMainItem["subItems"]) => {
     if (subItems?.length) {
@@ -201,17 +254,33 @@ export function NavMain({ items }: NavMainProps) {
                           <Link prefetch={false} href={item.url} target={item.newTab ? "_blank" : undefined}>
                             {item.icon && <item.icon />}
                             <span>{item.title}</span>
+                            {item.title === "Student Portal" && studentUnreadCount > 0 && (
+                              <span className="ml-auto flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );
                   }
                   // Otherwise, render the dropdown as before
-                  return <NavItemCollapsed key={item.title} item={item} isActive={isItemActive} />;
+                  return (
+                    <NavItemCollapsed 
+                      key={item.title} 
+                      item={item} 
+                      isActive={isItemActive} 
+                      studentUnreadCount={studentUnreadCount} 
+                    />
+                  );
                 }
                 // Expanded view
                 return (
-                  <NavItemExpanded key={item.title} item={item} isActive={isItemActive} isSubmenuOpen={isSubmenuOpen} />
+                  <NavItemExpanded 
+                    key={item.title} 
+                    item={item} 
+                    isActive={isItemActive} 
+                    isSubmenuOpen={isSubmenuOpen} 
+                    studentUnreadCount={studentUnreadCount}
+                  />
                 );
               })}
             </SidebarMenu>

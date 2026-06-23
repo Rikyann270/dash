@@ -1,0 +1,59 @@
+const fs = require('fs');
+
+const data = {
+  "Business": [
+    { name: "Business Administration and Management", duration: "2 years", description: "Foundational skills in managing businesses and organizations.", studyTimes: "Morning, Afternoon, Weekend", icon: "Briefcase" },
+    { name: "Accountancy", duration: "2 years", description: "Learn accounting principles and financial management.", studyTimes: "Morning, Afternoon", icon: "Briefcase" },
+    { name: "Human Resource Management", duration: "2 years", description: "Skills in personnel management and organizational development.", studyTimes: "Afternoon, Evening", icon: "Briefcase" },
+    { name: "Secretarial Studies / Office Management", duration: "2 years", description: "Training in office administration and secretarial duties.", studyTimes: "Morning, Weekend", icon: "Briefcase" },
+    { name: "Procurement and Logistics", duration: "2 years", description: "Expertise in supply chain and procurement processes.", studyTimes: "Afternoon, Weekend", icon: "Briefcase" },
+    { name: "Journalism and Media Studies", duration: "2 years", description: "Training in reporting, media production, and communication.", studyTimes: "Afternoon, Evening", icon: "Code" }
+  ],
+  "Vocational": [
+    { name: "Fashion and Garment Design", duration: "2 years", description: "Hands-on training in designing and creating garments.", studyTimes: "Morning, Afternoon", icon: "Scissors" },
+    { name: "Cosmetology and Beauty Therapy", duration: "2 years", description: "Skills in beauty care, hairdressing, and cosmetics.", studyTimes: "Morning, Weekend", icon: "Scissors" },
+    { name: "Hotel and Institutional Catering", duration: "2 years", description: "Culinary and hospitality skills for institutional settings.", studyTimes: "Afternoon, Weekend", icon: "ChefHat" },
+    { name: "Tourism & Hospitality Management", duration: "2 years", description: "Comprehensive skills for the tourism and hospitality industry.", studyTimes: "Morning, Evening", icon: "ChefHat" },
+    { name: "Events Management & Planning", duration: "2 years", description: "Training in organizing and managing events.", studyTimes: "Morning, Afternoon", icon: "Briefcase" }
+  ],
+  "Technical": [
+    { name: "Information and Communication Technology", duration: "2 years", description: "Essential skills in computing and IT systems.", studyTimes: "Morning, Afternoon", icon: "Laptop" },
+    { name: "Electrical Installation & Engineering", duration: "2 years", description: "Practical training in electrical systems and safety.", studyTimes: "Afternoon, Evening", icon: "Wrench" },
+    { name: "Welding & Metal Fabrication", duration: "2 years", description: "Master welding techniques and metalwork for industry.", studyTimes: "Morning, Weekend", icon: "Wrench" },
+    { name: "Building and Construction", duration: "2 years", description: "Technical expertise in construction and project management.", studyTimes: "Afternoon, Evening", icon: "Wrench" },
+    { name: "Automotive Mechanical Engineering", duration: "2 years", description: "Skills in vehicle repair and mechanical systems.", studyTimes: "Morning, Weekend", icon: "Wrench" },
+    { name: "Plumbing", duration: "2 years", description: "Training in plumbing systems and installation.", studyTimes: "Afternoon, Weekend", icon: "Wrench" }
+  ],
+  "Social Education": [
+    { name: "Early Childhood Development", duration: "2 years", description: "Skills in nurturing and educating young children.", studyTimes: "Morning, Afternoon", icon: "BookOpen" },
+    { name: "Child Care", duration: "2 years", description: "Training in child welfare and caregiving.", studyTimes: "Afternoon, Weekend", icon: "BookOpen" },
+    { name: "Counseling and Guidance", duration: "2 years", description: "Techniques in providing emotional and psychological support.", studyTimes: "Morning, Evening", icon: "BookOpen" },
+    { name: "Home Health Care", duration: "2 years", description: "Skills in providing care for individuals at home.", studyTimes: "Afternoon, Weekend", icon: "BookOpen" }
+  ],
+  "Adult Learning": [
+    { name: "English Language (The Four Communication Skills)", duration: "3 Months", description: "Improve listening, speaking, reading, and writing in English.", studyTimes: "Morning, Afternoon", icon: "BookOpen" },
+    { name: "Primary Leaving Examination (P.L.E)", duration: "2 years", description: "Preparation for the Primary Leaving Examination.", studyTimes: "Afternoon, Weekend", icon: "BookOpen" },
+    { name: "Uganda Certificate of Education (U.C.E)", duration: "24 Months", description: "Preparation for the Uganda Certificate of Education.", studyTimes: "Morning, Evening", icon: "BookOpen" }
+  ]
+};
+
+const getInitials = (name) => {
+  return name.replace(/[^a-zA-Z ]/g, "").split(' ').filter(w => w.length > 0).map(w => w[0].toUpperCase()).join('');
+};
+
+let sql = `INSERT INTO courses (id, name, code, description, category, duration, study_times, icon) VALUES\n`;
+let values = [];
+let idCounter = 1;
+
+for (const [category, courses] of Object.entries(data)) {
+  for (const c of courses) {
+    const id = `c4444444-4444-4444-4444-${idCounter.toString().padStart(12, '0')}`;
+    const code = getInitials(c.name);
+    values.push(`('${id}', '${c.name.replace(/'/g, "''")}', '${code}', '${c.description.replace(/'/g, "''")}', '${category}', '${c.duration}', '${c.studyTimes}', '${c.icon}')`);
+    idCounter++;
+  }
+}
+
+sql += values.join(',\n') + ';\n';
+fs.writeFileSync('/Users/riky/namasuba/dash/supabase/new_courses.sql', sql);
+console.log('Done');

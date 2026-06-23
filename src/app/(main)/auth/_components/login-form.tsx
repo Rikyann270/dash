@@ -16,7 +16,11 @@ const formSchema = z.object({
   remember: z.boolean().optional(),
 });
 
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+
 export function LoginForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -26,14 +30,23 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    toast.loading("Logging in...", { id: "login-toast" });
+    
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
     });
+
+    if (error) {
+      toast.error(error.message, { id: "login-toast" });
+      return;
+    }
+
+    toast.success("Logged in successfully!", { id: "login-toast" });
+    router.push("/dashboard/school"); // Redirect to dashboard
+    router.refresh();
   };
 
   return (
