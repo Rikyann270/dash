@@ -1,3 +1,5 @@
 allowBuilds:
   sharp: true
 minimumReleaseAge: 0
+patchedDependencies:
+  '@full-ui/headless-calendar@7.0.0': patches/@full-ui__headless-calendar@7.0.0.patch

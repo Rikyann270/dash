@@ -1,0 +1,14 @@
+diff --git a/index.js b/index.js
+index 3dcfe8dbe532d540a3fe8844db31cc0b34736735..d200ca76bd35741eef13a31b4bc8b5fca83876b5 100644
+--- a/index.js
++++ b/index.js
+@@ -1,6 +1,6 @@
+-import * as ZonedDateTimeFns from 'temporal-polyfill/fns/ZonedDateTime';
+-import * as PlainDateTimeFns from 'temporal-polyfill/fns/PlainDateTime';
+-import * as InstantFns from 'temporal-polyfill/fns/Instant';
++import * as ZonedDateTimeFns from 'temporal-polyfill/fns/zoneddatetime';
++import * as PlainDateTimeFns from 'temporal-polyfill/fns/plaindatetime';
++import * as InstantFns from 'temporal-polyfill/fns/instant';
+ 
+ // Adding
+ function addWeeks(m, n) {
