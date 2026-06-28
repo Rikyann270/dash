@@ -51,6 +51,15 @@ interface Student {
   status: string;
   enrollment_date: string | null;
   profiles: StudentProfile | null;
+  class_enrollments?: {
+    classes?: {
+      courses?: {
+        id: string;
+        name: string;
+        code: string;
+      } | null;
+    } | null;
+  }[];
 }
 
 interface StudentsClientProps {
@@ -62,6 +71,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [programFilter, setProgramFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [courseFilter, setCourseFilter] = useState("ALL");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentDetails, setStudentDetails] = useState<any>(null);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
@@ -98,6 +108,13 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
     setStudents(initialStudents);
   }, [initialStudents]);
 
+  // Extract all courses for filter options
+  const allCourses = Array.from(
+    new Set(
+      students.map((s) => s.class_enrollments?.[0]?.classes?.courses?.code).filter(Boolean)
+    )
+  ) as string[];
+
   // Filtering Logic
   const filteredStudents = students.filter((student) => {
     const fullName = `${student.profiles?.first_name || ""} ${student.profiles?.last_name || ""}`.toLowerCase();
@@ -108,8 +125,10 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
     const programMatch = programFilter === "ALL" || student.program_type === programFilter;
     const statusMatch = statusFilter === "ALL" || student.status === statusFilter;
+    const courseCode = student.class_enrollments?.[0]?.classes?.courses?.code;
+    const courseMatch = courseFilter === "ALL" || courseCode === courseFilter;
 
-    return searchMatch && programMatch && statusMatch;
+    return searchMatch && programMatch && statusMatch && courseMatch;
   });
 
   // KPI calculations
@@ -230,6 +249,21 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
               <option value="INACTIVE">Inactive</option>
             </NativeSelect>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="hidden text-muted-foreground text-xs sm:inline">Course:</span>
+            <NativeSelect
+              value={courseFilter}
+              onChange={(e) => setCourseFilter(e.target.value)}
+              className="w-[130px] text-sm"
+            >
+              <option value="ALL">All Courses</option>
+              {allCourses.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
 
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
@@ -298,6 +332,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
             <TableRow>
               <TableHead>Student</TableHead>
               <TableHead>Enrollment No.</TableHead>
+              <TableHead>Course</TableHead>
               <TableHead>Program</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Enrollment Date</TableHead>
@@ -325,6 +360,11 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
                   </TableCell>
                   <TableCell className="font-mono text-xs">{student.enrollment_no}</TableCell>
                   <TableCell>
+                    <Badge variant="secondary" className="rounded-sm text-xs font-mono">
+                      {student.class_enrollments?.[0]?.classes?.courses?.code || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <Badge variant="outline" className="rounded-sm">
                       {student.program_type}
                     </Badge>
@@ -343,7 +383,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
             {filteredStudents.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
                   <div className="flex flex-col items-center justify-center gap-1.5">
                     <Users className="mb-1 h-8 w-8 text-muted-foreground/50" />
                     <span className="font-medium">No students found</span>

@@ -12,7 +12,14 @@ export async function getStudents() {
     .from("students")
     .select(`
       *,
-      profiles!students_profile_id_fkey(first_name, last_name, email, phone)
+      profiles!students_profile_id_fkey(first_name, last_name, email, phone),
+      class_enrollments(
+        classes(
+          courses(
+            id, name, code
+          )
+        )
+      )
     `)
     .order("enrollment_date", { ascending: false });
 
