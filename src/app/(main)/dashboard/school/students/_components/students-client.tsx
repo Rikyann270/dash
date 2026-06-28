@@ -75,10 +75,12 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
       return;
     }
 
+    const studentId = selectedStudent.id;
+
     async function loadDetails() {
       setIsDetailsLoading(true);
       try {
-        const data = await getStudentDetails(selectedStudent?.id);
+        const data = await getStudentDetails(studentId);
         setStudentDetails(data);
       } catch (err) {
         toast.error("Failed to load student record details.");

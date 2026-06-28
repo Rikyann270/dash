@@ -62,10 +62,12 @@ export function TeachersClient({ initialTeachers }: TeachersClientProps) {
       return;
     }
 
+    const teacherId = selectedTeacher.id;
+
     async function loadDetails() {
       setIsDetailsLoading(true);
       try {
-        const data = await getTeacherDetails(selectedTeacher?.id);
+        const data = await getTeacherDetails(teacherId);
         setTeacherDetails(data);
       } catch (err) {
         toast.error("Failed to load teacher schedule details.");
