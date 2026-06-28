@@ -32,10 +32,10 @@ export function PrincipalKpiCards({
             <div className="flex items-center gap-2">
               <span className="text-3xl text-foreground leading-none tracking-tight">{students}</span>
               <Badge className="rounded-sm border-blue-600/50 bg-blue-500/10 px-1 font-normal text-blue-700 text-xs dark:border-blue-800/50 dark:bg-blue-500/15 dark:text-blue-300">
-                <Users className="size-3 mr-1" /> Active
+                <Users className="mr-1 size-3" /> Active
               </Badge>
             </div>
-            <div className="text-right text-muted-foreground text-xs mt-1">across all programs</div>
+            <div className="mt-1 text-right text-muted-foreground text-xs">across all programs</div>
           </CardContent>
         </Card>
 
@@ -50,7 +50,7 @@ export function PrincipalKpiCards({
             <div className="flex items-center gap-2">
               <span className="text-3xl text-foreground leading-none tracking-tight">{attendance}%</span>
             </div>
-            <div className="text-right text-muted-foreground text-xs mt-1">average daily presence</div>
+            <div className="mt-1 text-right text-muted-foreground text-xs">average daily presence</div>
           </CardContent>
         </Card>
 
@@ -65,10 +65,10 @@ export function PrincipalKpiCards({
             <div className="flex items-center gap-2">
               <span className="text-3xl text-foreground leading-none tracking-tight">{submittedLessons}</span>
               <Badge className="rounded-sm border-green-600/50 bg-green-500/10 px-1 font-normal text-green-700 text-xs dark:border-green-800/50 dark:bg-green-500/15 dark:text-green-300">
-                <BookOpen className="size-3 mr-1" /> Verified
+                <BookOpen className="mr-1 size-3" /> Verified
               </Badge>
             </div>
-            <div className="text-right text-muted-foreground text-xs mt-1">by faculty staff</div>
+            <div className="mt-1 text-right text-muted-foreground text-xs">by faculty staff</div>
           </CardContent>
         </Card>
 
@@ -83,10 +83,10 @@ export function PrincipalKpiCards({
             <div className="flex items-center gap-2">
               <span className="text-3xl text-foreground leading-none tracking-tight">{missedLessons}</span>
               <Badge className="rounded-sm border-red-600/50 bg-red-500/10 px-1 font-normal text-red-700 text-xs dark:border-red-800/50 dark:bg-red-500/15 dark:text-red-300">
-                <AlertTriangle className="size-3 mr-1" /> Pending
+                <AlertTriangle className="mr-1 size-3" /> Pending
               </Badge>
             </div>
-            <div className="text-right text-muted-foreground text-xs mt-1">lessons not submitted</div>
+            <div className="mt-1 text-right text-muted-foreground text-xs">lessons not submitted</div>
           </CardContent>
         </Card>
       </div>

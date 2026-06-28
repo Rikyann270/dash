@@ -1,12 +1,12 @@
 import { format } from "date-fns";
-import { ArrowRight, User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function TeacherLessonsStatus({ lessons }: { lessons: any[] }) {
-  const today = format(new Date(), "EEEE, d MMMM");
+  const _today = format(new Date(), "EEEE, d MMMM");
 
   return (
     <Card className="h-full">
@@ -19,11 +19,11 @@ export function TeacherLessonsStatus({ lessons }: { lessons: any[] }) {
       <CardContent className="flex flex-col gap-0">
         <div className="flex flex-col divide-y divide-border">
           {lessons.length === 0 ? (
-            <div className="py-8 text-center text-sm text-muted-foreground">No lessons scheduled or logged today.</div>
+            <div className="py-8 text-center text-muted-foreground text-sm">No lessons scheduled or logged today.</div>
           ) : (
             lessons.map((lesson, idx) => {
               const isSubmitted = lesson.status === "SUBMITTED";
-              const isPending = lesson.status === "SCHEDULED";
+              const _isPending = lesson.status === "SCHEDULED";
               const isMissed = lesson.status === "SKIPPED";
 
               const statusColorClass = isSubmitted
@@ -45,7 +45,7 @@ export function TeacherLessonsStatus({ lessons }: { lessons: any[] }) {
                 >
                   <div className="flex gap-2">
                     <div className={`w-1 shrink-0 rounded-md ${statusColorClass}`} />
-                    <div className="text-nowrap text-xs flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-nowrap text-xs">
                       <Avatar className="size-6 bg-muted">
                         <AvatarFallback className="text-[10px]">
                           {lesson.teachers?.profiles?.first_name?.[0]}

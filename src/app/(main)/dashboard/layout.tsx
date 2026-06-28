@@ -10,8 +10,8 @@ import { SimpleIcon } from "@/components/simple-icon";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { users } from "@/data/users";
 import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "@/lib/preferences/layout";
+import { getUser } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
@@ -20,7 +20,18 @@ import { LayoutControls } from "./_components/sidebar/layout-controls";
 import { SearchDialog } from "./_components/sidebar/search-dialog";
 import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";
 
+const mockDevUsers = [
+  { email: "md_local@school.com", name: "Robert Kavuma", role: "MD" },
+  { email: "principal_local@school.com", name: "Sarah Nansubuga", role: "PRINCIPAL" },
+  { email: "teacher1_local@school.com", name: "John Mugisha", role: "TEACHER" },
+  { email: "student1_local@school.com", name: "Alex Smith", role: "STUDENT" },
+  { email: "parent1_local@school.com", name: "Grace Namaganda", role: "PARENT" },
+];
+
 export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
+  const user = await getUser();
+  const isDev = process.env.NODE_ENV === "development";
+
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
   const [variant, collapsible] = await Promise.all([
@@ -37,7 +48,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant={variant} collapsible={collapsible} />
+      <AppSidebar variant={variant} collapsible={collapsible} user={user} appRole={user?.appRole} isDev={isDev} />
       <SidebarInset
         className={cn(
           "[html[data-content-layout=centered]_&>*]:mx-auto",
@@ -78,7 +89,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
                   <SimpleIcon icon={siGithub} className="fill-primary-foreground" />
                 </Link>
               </Button>
-              <AccountSwitcher users={users} />
+              <AccountSwitcher user={user} devUsers={mockDevUsers} isDev={isDev} />
             </div>
           </div>
         </header>

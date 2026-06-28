@@ -1,23 +1,28 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { 
-  Plus, Calendar, Clock, MapPin, Users, BookOpen, 
-  GraduationCap, ClipboardList, Eye, Grid3X3, List
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
+
+import { Calendar, Clock, Grid3X3, List, MapPin, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
+
 import { createTimetableSession } from "@/app/actions/timetable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ClassCohort {
   id: string;
@@ -89,8 +94,8 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
 
   // KPIs
   const totalSessions = sessions.length;
-  const uniqueRooms = Array.from(new Set(sessions.map(s => s.room).filter(Boolean))).length;
-  const assignedTeachers = Array.from(new Set(sessions.map(s => s.teacher_id).filter(Boolean))).length;
+  const uniqueRooms = Array.from(new Set(sessions.map((s) => s.room).filter(Boolean))).length;
+  const assignedTeachers = Array.from(new Set(sessions.map((s) => s.teacher_id).filter(Boolean))).length;
 
   return (
     <div className="space-y-6">
@@ -98,40 +103,40 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Scheduled Classes</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Scheduled Classes</CardTitle>
             <CardAction>
               <Calendar className="size-4 text-muted-foreground" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">{totalSessions}</span>
-            <div className="text-xs text-muted-foreground mt-1">active blocks scheduled weekly</div>
+            <span className="font-bold text-3xl tracking-tight">{totalSessions}</span>
+            <div className="mt-1 text-muted-foreground text-xs">active blocks scheduled weekly</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Assigned Rooms</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Assigned Rooms</CardTitle>
             <CardAction>
               <MapPin className="size-4 text-primary" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">{uniqueRooms}</span>
-            <div className="text-xs text-muted-foreground mt-1">laboratories & workshops used</div>
+            <span className="font-bold text-3xl tracking-tight">{uniqueRooms}</span>
+            <div className="mt-1 text-muted-foreground text-xs">laboratories & workshops used</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Faculty</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Active Faculty</CardTitle>
             <CardAction>
               <Users className="size-4 text-emerald-500" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">{assignedTeachers}</span>
-            <div className="text-xs text-muted-foreground mt-1">teachers assigned sections</div>
+            <span className="font-bold text-3xl tracking-tight">{assignedTeachers}</span>
+            <div className="mt-1 text-muted-foreground text-xs">teachers assigned sections</div>
           </CardContent>
         </Card>
       </div>
@@ -166,8 +171,10 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                   <Label htmlFor="classId">Class Cohort</Label>
                   <NativeSelect id="classId" name="classId" required>
                     <option value="">-- Select Class --</option>
-                    {classes.map(cls => (
-                      <option key={cls.id} value={cls.id}>{cls.name}</option>
+                    {classes.map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </option>
                     ))}
                   </NativeSelect>
                 </div>
@@ -175,8 +182,10 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                   <Label htmlFor="subjectId">Subject</Label>
                   <NativeSelect id="subjectId" name="subjectId" required>
                     <option value="">-- Select Subject --</option>
-                    {subjects.map(sub => (
-                      <option key={sub.id} value={sub.id}>{sub.name} ({sub.code})</option>
+                    {subjects.map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name} ({sub.code})
+                      </option>
                     ))}
                   </NativeSelect>
                 </div>
@@ -184,7 +193,7 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                   <Label htmlFor="teacherId">Responsible Teacher</Label>
                   <NativeSelect id="teacherId" name="teacherId" required>
                     <option value="">-- Select Teacher --</option>
-                    {teachers.map(t => (
+                    {teachers.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.profiles?.first_name} {t.profiles?.last_name}
                       </option>
@@ -218,7 +227,9 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                   </div>
                 </div>
                 <DialogFooter className="pt-2">
-                  <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+                    Cancel
+                  </Button>
                   <Button type="submit" disabled={isPending}>
                     {isPending ? "Scheduling..." : "Schedule Session"}
                   </Button>
@@ -230,31 +241,31 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
 
         {/* Weekly Grid View */}
         <TabsContent value="grid">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-5 mt-2">
+          <div className="mt-2 grid grid-cols-1 gap-4 lg:grid-cols-5">
             {WEEKDAYS.map((dayIndex) => {
               const daySessions = sessions
-                .filter(s => s.day_of_week === dayIndex)
+                .filter((s) => s.day_of_week === dayIndex)
                 .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
               return (
                 <div key={dayIndex} className="space-y-4">
-                  <div className="bg-muted p-2.5 rounded-lg text-center font-bold text-xs uppercase tracking-wider text-muted-foreground border">
+                  <div className="rounded-lg border bg-muted p-2.5 text-center font-bold text-muted-foreground text-xs uppercase tracking-wider">
                     {DAYS_OF_WEEK[dayIndex]}
                   </div>
-                  
-                  <div className="space-y-3 min-h-[300px]">
+
+                  <div className="min-h-[300px] space-y-3">
                     {daySessions.map((session) => {
-                      const initials = `${session.teachers?.profiles?.first_name?.[0] || ""}${session.teachers?.profiles?.last_name?.[0] || ""}`;
+                      const _initials = `${session.teachers?.profiles?.first_name?.[0] || ""}${session.teachers?.profiles?.last_name?.[0] || ""}`;
                       return (
-                        <div 
-                          key={session.id} 
-                          className="bg-card p-3 rounded-lg border-2 border-primary/10 hover:border-primary/30 transition-all shadow-sm flex flex-col gap-2.5 relative"
+                        <div
+                          key={session.id}
+                          className="relative flex flex-col gap-2.5 rounded-lg border-2 border-primary/10 bg-card p-3 shadow-sm transition-all hover:border-primary/30"
                         >
                           <div>
-                            <span className="font-mono text-[10px] text-primary bg-primary/5 px-1.5 py-0.5 rounded font-semibold">
+                            <span className="rounded bg-primary/5 px-1.5 py-0.5 font-mono font-semibold text-[10px] text-primary">
                               {session.subjects?.code}
                             </span>
-                            <h4 className="font-bold text-xs mt-1.5 line-clamp-2">{session.subjects?.name}</h4>
+                            <h4 className="mt-1.5 line-clamp-2 font-bold text-xs">{session.subjects?.name}</h4>
                           </div>
 
                           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -269,19 +280,21 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                             <span>Room: {session.room || "TBA"}</span>
                           </div>
 
-                          <div className="pt-2 border-t flex items-center justify-between text-[11px]">
-                            <span className="font-medium text-foreground truncate max-w-[100px]">
+                          <div className="flex items-center justify-between border-t pt-2 text-[11px]">
+                            <span className="max-w-[100px] truncate font-medium text-foreground">
                               {session.teachers?.profiles?.first_name} {session.teachers?.profiles?.last_name}
                             </span>
-                            <span className="text-[10px] text-muted-foreground">{session.classes?.name.split(" ")[0]}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {session.classes?.name.split(" ")[0]}
+                            </span>
                           </div>
                         </div>
                       );
                     })}
 
                     {daySessions.length === 0 && (
-                      <div className="h-full flex flex-col justify-center items-center p-6 text-center border-2 border-dashed rounded-lg text-muted-foreground/40 text-[10px] py-12">
-                        <Clock className="h-5 w-5 mb-1 opacity-50" />
+                      <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 py-12 text-center text-[10px] text-muted-foreground/40">
+                        <Clock className="mb-1 h-5 w-5 opacity-50" />
                         <span>No classes scheduled</span>
                       </div>
                     )}
@@ -315,20 +328,22 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                       {session.start_time.substring(0, 5)} - {session.end_time.substring(0, 5)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="rounded-sm font-mono">{session.subjects?.code}</Badge>
+                      <Badge variant="outline" className="rounded-sm font-mono">
+                        {session.subjects?.code}
+                      </Badge>
                     </TableCell>
                     <TableCell className="font-medium">{session.subjects?.name}</TableCell>
                     <TableCell>{session.classes?.name}</TableCell>
                     <TableCell>
                       {session.teachers?.profiles?.first_name} {session.teachers?.profiles?.last_name}
                     </TableCell>
-                    <TableCell className="font-mono">{session.room || 'TBA'}</TableCell>
+                    <TableCell className="font-mono">{session.room || "TBA"}</TableCell>
                   </TableRow>
                 ))}
 
                 {sessions.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                       No scheduled timetable sessions.
                     </TableCell>
                   </TableRow>

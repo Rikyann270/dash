@@ -1,26 +1,28 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { 
-  Plus, Calendar, GraduationCap, Users, UserPlus, FileText, 
-  Layers, Settings2, Trash2, Award, ClipboardList, CheckCircle, Info
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
-} from "@/components/ui/dialog";
-import { 
-  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle 
-} from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
+
+import { Calendar, ClipboardList, Info, Layers, Plus, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { createClass, enrollStudentInClass } from "@/app/actions/academic";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 interface Course {
   id: string;
@@ -108,46 +110,46 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Cohorts</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Active Cohorts</CardTitle>
             <CardAction>
               <Layers className="size-4 text-muted-foreground" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">{totalClassesCount}</span>
-            <div className="text-xs text-muted-foreground mt-1">class sections structured</div>
+            <span className="font-bold text-3xl tracking-tight">{totalClassesCount}</span>
+            <div className="mt-1 text-muted-foreground text-xs">class sections structured</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Class Placements</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Class Placements</CardTitle>
             <CardAction>
               <Users className="size-4 text-primary" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">{totalEnrollmentsCount}</span>
-            <div className="text-xs text-muted-foreground mt-1">total active enrollments</div>
+            <span className="font-bold text-3xl tracking-tight">{totalEnrollmentsCount}</span>
+            <div className="mt-1 text-muted-foreground text-xs">total active enrollments</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Section Size</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Avg. Section Size</CardTitle>
             <CardAction>
               <Info className="size-4 text-emerald-500" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">{avgClassSize}</span>
-            <div className="text-xs text-muted-foreground mt-1">students per cohort</div>
+            <span className="font-bold text-3xl tracking-tight">{avgClassSize}</span>
+            <div className="mt-1 text-muted-foreground text-xs">students per cohort</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-3 justify-end">
+      <div className="flex items-center justify-end gap-3">
         {/* Enroll Student Dialog */}
         <Dialog open={isEnrollOpen} onOpenChange={setIsEnrollOpen}>
           <DialogTrigger asChild>
@@ -159,15 +161,13 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
             <form onSubmit={handleEnrollStudent} className="space-y-4">
               <DialogHeader>
                 <DialogTitle>Enroll Student</DialogTitle>
-                <DialogDescription>
-                  Map a student to a class cohort.
-                </DialogDescription>
+                <DialogDescription>Map a student to a class cohort.</DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
                 <Label htmlFor="studentId">Select Student</Label>
                 <NativeSelect id="studentId" name="studentId" required>
                   <option value="">-- Choose Student --</option>
-                  {students.map(std => (
+                  {students.map((std) => (
                     <option key={std.id} value={std.id}>
                       {std.profiles?.first_name} {std.profiles?.last_name} ({std.enrollment_no})
                     </option>
@@ -178,7 +178,7 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
                 <Label htmlFor="classId">Select Cohort (Class)</Label>
                 <NativeSelect id="classId" name="classId" required>
                   <option value="">-- Choose Class --</option>
-                  {classes.map(cls => (
+                  {classes.map((cls) => (
                     <option key={cls.id} value={cls.id}>
                       {cls.name}
                     </option>
@@ -186,7 +186,9 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
                 </NativeSelect>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsEnrollOpen(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setIsEnrollOpen(false)}>
+                  Cancel
+                </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? "Enrolling..." : "Enroll Student"}
                 </Button>
@@ -206,16 +208,16 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
             <form onSubmit={handleCreateClass} className="space-y-4">
               <DialogHeader>
                 <DialogTitle>Create Class Cohort</DialogTitle>
-                <DialogDescription>
-                  Setup a group of students attending a curriculum program.
-                </DialogDescription>
+                <DialogDescription>Setup a group of students attending a curriculum program.</DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
                 <Label htmlFor="courseId">Academic Program</Label>
                 <NativeSelect id="courseId" name="courseId" required>
                   <option value="">-- Select Course --</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.id}>{course.name} ({course.code})</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.name} ({course.code})
+                    </option>
                   ))}
                 </NativeSelect>
               </div>
@@ -234,7 +236,9 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsClassOpen(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setIsClassOpen(false)}>
+                  Cancel
+                </Button>
                 <Button type="submit" disabled={isPending}>
                   {isPending ? "Creating..." : "Create Class"}
                 </Button>
@@ -247,13 +251,13 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
       {/* Class Cohorts Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {classes.map((cohort) => {
-          const cohortEnrs = enrollments.filter(e => e.class_id === cohort.id);
+          const cohortEnrs = enrollments.filter((e) => e.class_id === cohort.id);
           const studentCount = cohortEnrs.length;
 
           return (
-            <Card 
-              key={cohort.id} 
-              className="hover:shadow-md transition-shadow cursor-pointer"
+            <Card
+              key={cohort.id}
+              className="cursor-pointer transition-shadow hover:shadow-md"
               onClick={() => setSelectedCohort(cohort)}
             >
               <CardHeader className="pb-2">
@@ -263,13 +267,13 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
                   </Badge>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <CardTitle className="text-base mt-2 font-bold">{cohort.name}</CardTitle>
+                <CardTitle className="mt-2 font-bold text-base">{cohort.name}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
-                <div className="text-xs text-muted-foreground truncate">
+                <div className="truncate text-muted-foreground text-xs">
                   {cohort.courses?.name || "Vocational Course"}
                 </div>
-                <div className="flex items-center gap-2 mt-4 pt-3 border-t text-sm font-semibold">
+                <div className="mt-4 flex items-center gap-2 border-t pt-3 font-semibold text-sm">
                   <Users className="h-4 w-4 text-primary" />
                   <span>{studentCount} Enrolled Students</span>
                 </div>
@@ -279,8 +283,8 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
         })}
 
         {classes.length === 0 && (
-          <div className="col-span-full text-center py-12 text-muted-foreground border-2 border-dashed rounded-xl">
-            <ClipboardList className="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
+          <div className="col-span-full rounded-xl border-2 border-dashed py-12 text-center text-muted-foreground">
+            <ClipboardList className="mx-auto mb-2 h-8 w-8 text-muted-foreground/50" />
             <p className="font-semibold">No Class Cohorts Configured</p>
             <p className="text-xs">Create a class using the button above to begin enrollment.</p>
           </div>
@@ -290,22 +294,22 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
       {/* Cohort Student Roster Sheet */}
       <Sheet open={selectedCohort !== null} onOpenChange={(open) => !open && setSelectedCohort(null)}>
         {selectedCohort && (
-          <SheetContent className="sm:max-w-[500px] overflow-y-auto">
-            <SheetHeader className="pb-4 border-b">
+          <SheetContent className="overflow-y-auto sm:max-w-[500px]">
+            <SheetHeader className="border-b pb-4">
               <SheetTitle>{selectedCohort.name} Roster</SheetTitle>
               <SheetDescription>
                 {selectedCohort.courses?.name} · Year {selectedCohort.year} Semester {selectedCohort.semester}
               </SheetDescription>
             </SheetHeader>
 
-            <div className="py-6 space-y-4">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-                Students Enrolled ({enrollments.filter(e => e.class_id === selectedCohort.id).length})
+            <div className="space-y-4 py-6">
+              <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider">
+                Students Enrolled ({enrollments.filter((e) => e.class_id === selectedCohort.id).length})
               </h3>
-              
+
               <div className="space-y-3">
                 {enrollments
-                  .filter(e => e.class_id === selectedCohort.id)
+                  .filter((e) => e.class_id === selectedCohort.id)
                   .map((e) => {
                     const std = e.students;
                     if (!std) return null;
@@ -321,17 +325,19 @@ export function ClassesClient({ classes, courses, students, enrollments }: Class
                             <div className="font-medium text-foreground">
                               {std.profiles?.first_name} {std.profiles?.last_name}
                             </div>
-                            <div className="text-xs text-muted-foreground">{std.profiles?.email || "No email"}</div>
+                            <div className="text-muted-foreground text-xs">{std.profiles?.email || "No email"}</div>
                           </div>
                         </div>
-                        <Badge variant="outline" className="font-mono text-xs">{std.enrollment_no}</Badge>
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {std.enrollment_no}
+                        </Badge>
                       </div>
                     );
                   })}
 
-                {enrollments.filter(e => e.class_id === selectedCohort.id).length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Users className="mx-auto h-8 w-8 text-muted-foreground/30 mb-2" />
+                {enrollments.filter((e) => e.class_id === selectedCohort.id).length === 0 && (
+                  <div className="py-12 text-center text-muted-foreground">
+                    <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground/30" />
                     <p className="font-semibold text-xs">No students enrolled</p>
                     <p className="text-[11px]">Enroll a student via the "Enroll Student" option above.</p>
                   </div>

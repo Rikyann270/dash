@@ -60,7 +60,13 @@ const _data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  user?: any;
+  appRole?: string;
+  isDev?: boolean;
+};
+
+export function AppSidebar({ user, appRole, isDev, ...props }: AppSidebarProps) {
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.sidebarVariant,
@@ -72,13 +78,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
 
+  const filteredItems = sidebarItems
+    .filter((group) => !group.devOnly || isDev)
+    .filter((group) => !group.roles || !appRole || group.roles.includes(appRole))
+    .map((group) => {
+      const filteredGroupItems = group.items
+        .filter((item) => !item.devOnly || isDev)
+        .filter((item) => !item.roles || !appRole || item.roles.includes(appRole))
+        .map((item) => {
+          if (!item.subItems) return item;
+          const filteredSubItems = item.subItems
+            .filter((subItem) => !subItem.devOnly || isDev)
+            .filter((subItem) => !subItem.roles || !appRole || subItem.roles.includes(appRole));
+          return { ...item, subItems: filteredSubItems };
+        })
+        .filter((item) => !item.subItems || item.subItems.length > 0 || !item.subItems);
+
+      return { ...group, items: filteredGroupItems };
+    })
+    .filter((group) => group.items.length > 0);
+
   return (
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link prefetch={false} href="/dashboard/default">
+              <Link prefetch={false} href="/dashboard/school">
                 <Command />
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
@@ -87,13 +113,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems} />
-        {/* <NavDocuments items={data.documents} /> */}
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+        <NavMain items={filteredItems} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarSupportCard />
-        <NavUser user={rootUser} />
+        {user ? <NavUser user={user} /> : <NavUser user={rootUser} />}
       </SidebarFooter>
     </Sidebar>
   );

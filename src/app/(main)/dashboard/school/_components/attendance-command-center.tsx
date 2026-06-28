@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, AlertTriangle, ArrowRight, ArrowUpRight, TrendingDown } from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, TrendingDown } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Badge } from "@/components/ui/badge";
@@ -33,18 +33,18 @@ interface AttendanceCommandCenterProps {
 
 export function AttendanceCommandCenter({ trends, atRiskStudents }: AttendanceCommandCenterProps) {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
       {/* Trends Chart */}
-      <Card className="xl:col-span-7 h-full">
+      <Card className="h-full xl:col-span-7">
         <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
             <Activity className="h-4 w-4 text-primary" /> Attendance Trends (Last 14 Days)
           </CardTitle>
           <CardDescription>Overall daily attendance percentage</CardDescription>
         </CardHeader>
         <CardContent>
           {trends.length === 0 ? (
-            <div className="h-[280px] flex items-center justify-center text-muted-foreground border border-dashed rounded-lg bg-muted/10">
+            <div className="flex h-[280px] items-center justify-center rounded-lg border border-dashed bg-muted/10 text-muted-foreground">
               No recent attendance data available.
             </div>
           ) : (
@@ -91,9 +91,9 @@ export function AttendanceCommandCenter({ trends, atRiskStudents }: AttendanceCo
       </Card>
 
       {/* At-Risk Students Table */}
-      <Card className="xl:col-span-5 h-full">
+      <Card className="h-full xl:col-span-5">
         <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2 text-destructive">
+          <CardTitle className="flex items-center gap-2 text-destructive text-sm">
             <AlertTriangle className="h-4 w-4" /> Students At Risk
           </CardTitle>
           <CardDescription>Students below 85% attendance threshold</CardDescription>
@@ -104,9 +104,9 @@ export function AttendanceCommandCenter({ trends, atRiskStudents }: AttendanceCo
           </CardAction>
         </CardHeader>
         <CardContent className="px-0 pt-0">
-          <div className="overflow-auto max-h-[300px]">
+          <div className="max-h-[300px] overflow-auto">
             <Table className="**:data-[slot='table-cell']:px-4 **:data-[slot='table-head']:px-4">
-              <TableHeader className="sticky top-0 bg-card z-10 border-b">
+              <TableHeader className="sticky top-0 z-10 border-b bg-card">
                 <TableRow>
                   <TableHead>Student</TableHead>
                   <TableHead>Program</TableHead>
@@ -125,7 +125,7 @@ export function AttendanceCommandCenter({ trends, atRiskStudents }: AttendanceCo
                     <TableRow key={student.id}>
                       <TableCell>
                         <div className="font-medium text-foreground">{student.name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-muted-foreground text-xs">
                           {student.absent} absences / {student.total} total
                         </div>
                       </TableCell>

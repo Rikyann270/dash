@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { createCourse } from "@/app/actions/academic";
 
+import { createCourse } from "@/app/actions/academic";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -48,36 +49,20 @@ export function CourseFormDialog() {
         <form action={onSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Course</DialogTitle>
-            <DialogDescription>
-              Create a new academic program like a Certificate or Diploma.
-            </DialogDescription>
+            <DialogDescription>Create a new academic program like a Certificate or Diploma.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="code">Course Code</Label>
-              <Input
-                id="code"
-                name="code"
-                placeholder="e.g. DIP-BA"
-                required
-              />
+              <Input id="code" name="code" placeholder="e.g. DIP-BA" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Course Name</Label>
-              <Input
-                id="name"
-                name="name"
-                placeholder="e.g. Diploma in Business Administration"
-                required
-              />
+              <Input id="name" name="name" placeholder="e.g. Diploma in Business Administration" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Briefly describe the course..."
-              />
+              <Textarea id="description" name="description" placeholder="Briefly describe the course..." />
             </div>
           </div>
           <DialogFooter>

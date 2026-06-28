@@ -149,7 +149,7 @@ export default async function SchoolDashboardOverview() {
 
       {/* Flagship Attendance Command Center */}
       <div className="w-full">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">Attendance Command Center</h2>
+        <h2 className="mb-4 flex items-center gap-2 font-semibold text-xl">Attendance Command Center</h2>
         <AttendanceCommandCenter trends={attendanceTrends} atRiskStudents={atRiskStudents} />
       </div>
 

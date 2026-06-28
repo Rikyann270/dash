@@ -16,8 +16,9 @@ const formSchema = z.object({
   remember: z.boolean().optional(),
 });
 
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+
+import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     toast.loading("Logging in...", { id: "login-toast" });
-    
+
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
@@ -113,6 +114,62 @@ export function LoginForm() {
       <Button className="w-full" type="submit">
         Login
       </Button>
+
+      {process.env.NODE_ENV === "development" && (
+        <div className="mt-6 border-t pt-4">
+          <p className="mb-4 text-center text-muted-foreground text-sm">Developer Quick Login</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                form.setValue("email", "md_local@school.com");
+                form.setValue("password", "password123");
+                onSubmit({ email: "md_local@school.com", password: "password123" });
+              }}
+            >
+              MD
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                form.setValue("email", "teacher1_local@school.com");
+                form.setValue("password", "password123");
+                onSubmit({ email: "teacher1_local@school.com", password: "password123" });
+              }}
+            >
+              Teacher
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                form.setValue("email", "student1_local@school.com");
+                form.setValue("password", "password123");
+                onSubmit({ email: "student1_local@school.com", password: "password123" });
+              }}
+            >
+              Student
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => {
+                form.setValue("email", "principal_local@school.com");
+                form.setValue("password", "password123");
+                onSubmit({ email: "principal_local@school.com", password: "password123" });
+              }}
+            >
+              Principal
+            </Button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

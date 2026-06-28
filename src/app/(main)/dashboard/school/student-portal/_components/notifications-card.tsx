@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Bell, BellOff, CheckCheck, Clock, MessageSquare, BookOpen, User } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
+
+import { Bell, BellOff, BookOpen, CheckCheck, Clock, User } from "lucide-react";
+import { toast } from "sonner";
+
+import { markAllNotificationsRead, markNotificationRead } from "@/app/actions/student-portal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { markNotificationRead, markAllNotificationsRead } from "@/app/actions/student-portal";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Notification {
   id: string;
@@ -38,13 +40,11 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
 
   const handleMarkAsRead = async (id: string) => {
     // Optimistic update
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
 
     try {
       await markNotificationRead(id);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update notification");
       // Revert if error
       setNotifications(initialNotifications);
@@ -61,7 +61,7 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
       try {
         await markAllNotificationsRead(studentId);
         toast.success("All notifications marked as read");
-      } catch (error) {
+      } catch (_error) {
         toast.error("Failed to update notifications");
         setNotifications(initialNotifications);
       }
@@ -84,17 +84,17 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
   };
 
   return (
-    <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-card to-muted/20 backdrop-blur-md shadow-xl transition-all duration-300 hover:shadow-2xl">
+    <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-card to-muted/20 shadow-xl backdrop-blur-md transition-all duration-300 hover:shadow-2xl">
       <CardHeader className="border-b pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-bold flex items-center gap-2.5">
+          <CardTitle className="flex items-center gap-2.5 font-bold text-base">
             <div className="relative">
               {unreadCount > 0 ? (
                 <>
-                  <Bell className="h-5 w-5 text-primary animate-wiggle" />
+                  <Bell className="h-5 w-5 animate-wiggle text-primary" />
                   <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
                   </span>
                 </>
               ) : (
@@ -103,7 +103,10 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
             </div>
             <span>Updates & Notifications</span>
             {unreadCount > 0 && (
-              <Badge variant="default" className="rounded-full px-2 py-0 text-[10px] bg-primary text-primary-foreground font-semibold">
+              <Badge
+                variant="default"
+                className="rounded-full bg-primary px-2 py-0 font-semibold text-[10px] text-primary-foreground"
+              >
                 {unreadCount} new
               </Badge>
             )}
@@ -114,7 +117,7 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
               size="sm"
               onClick={handleMarkAllAsRead}
               disabled={isPending}
-              className="text-xs text-primary hover:text-primary/80 h-8 px-2 flex items-center gap-1"
+              className="flex h-8 items-center gap-1 px-2 text-primary text-xs hover:text-primary/80"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Mark all read
@@ -123,37 +126,41 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
         </div>
         <CardDescription>Updates on your attendance logs and lesson coverage</CardDescription>
       </CardHeader>
-      <CardContent className="pt-4 px-0 max-h-[380px] overflow-y-auto scrollbar-thin">
+      <CardContent className="scrollbar-thin max-h-[380px] overflow-y-auto px-0 pt-4">
         <div className="divide-y divide-border/60">
           {notifications.map((notif) => (
             <div
               key={notif.id}
               onClick={() => !notif.is_read && handleMarkAsRead(notif.id)}
-              className={`p-4 transition-all duration-200 cursor-pointer flex gap-3.5 text-sm ${
+              className={`flex cursor-pointer gap-3.5 p-4 text-sm transition-all duration-200 ${
                 notif.is_read
                   ? "hover:bg-muted/30"
-                  : "bg-primary/5 hover:bg-primary/10 border-l-2 border-primary font-medium"
+                  : "border-primary border-l-2 bg-primary/5 font-medium hover:bg-primary/10"
               }`}
             >
               <div className="mt-0.5">
-                <div className={`p-2 rounded-lg ${notif.is_read ? "bg-muted text-muted-foreground" : "bg-primary/15 text-primary"}`}>
+                <div
+                  className={`rounded-lg p-2 ${notif.is_read ? "bg-muted text-muted-foreground" : "bg-primary/15 text-primary"}`}
+                >
                   <BookOpen className="h-4 w-4" />
                 </div>
               </div>
-              <div className="flex-1 space-y-1 min-w-0">
+              <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold text-foreground text-xs truncate">{notif.title}</p>
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap flex items-center gap-1">
+                  <p className="truncate font-semibold text-foreground text-xs">{notif.title}</p>
+                  <span className="flex items-center gap-1 whitespace-nowrap text-[10px] text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     {formatTimeAgo(notif.created_at)}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed break-words">{notif.message}</p>
-                
+                <p className="break-words text-muted-foreground text-xs leading-relaxed">{notif.message}</p>
+
                 {notif.teachers?.profiles && (
                   <div className="flex items-center gap-1 pt-1.5 text-[10px] text-muted-foreground">
                     <User className="h-3 w-3 text-primary/75" />
-                    <span>Logged by Prof. {notif.teachers.profiles.first_name} {notif.teachers.profiles.last_name}</span>
+                    <span>
+                      Logged by Prof. {notif.teachers.profiles.first_name} {notif.teachers.profiles.last_name}
+                    </span>
                   </div>
                 )}
               </div>
@@ -161,12 +168,14 @@ export function NotificationsCard({ initialNotifications, studentId }: Notificat
           ))}
 
           {notifications.length === 0 && (
-            <div className="py-12 px-4 text-center text-muted-foreground flex flex-col items-center justify-center gap-2">
-              <div className="p-3 bg-muted rounded-full text-muted-foreground/50">
+            <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center text-muted-foreground">
+              <div className="rounded-full bg-muted p-3 text-muted-foreground/50">
                 <BellOff className="h-6 w-6" />
               </div>
               <p className="font-semibold text-sm">No new notifications</p>
-              <p className="text-xs max-w-[200px]">You are all caught up! Updates about marked classes will show up here.</p>
+              <p className="max-w-[200px] text-xs">
+                You are all caught up! Updates about marked classes will show up here.
+              </p>
             </div>
           )}
         </div>

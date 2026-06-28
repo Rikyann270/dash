@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -8,6 +10,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
 
 const formSchema = z
   .object({
@@ -30,14 +33,31 @@ export function RegisterForm() {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+  const router = useRouter();
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    toast.loading("Registering...", { id: "register-toast" });
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          role: "STUDENT",
+          first_name: data.email.split("@")[0],
+          last_name: "",
+        },
+      },
     });
+
+    if (error) {
+      toast.error(error.message, { id: "register-toast" });
+      return;
+    }
+
+    toast.success("Registered successfully!", { id: "register-toast" });
+    router.push("/auth/v1/login");
   };
 
   return (

@@ -27,6 +27,8 @@ export interface NavSubItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: string[];
+  devOnly?: boolean;
 }
 
 export interface NavMainItem {
@@ -37,18 +39,23 @@ export interface NavMainItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: string[];
+  devOnly?: boolean;
 }
 
 export interface NavGroup {
   id: number;
   label?: string;
   items: NavMainItem[];
+  roles?: string[];
+  devOnly?: boolean;
 }
 
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
     label: "Dashboards",
+    devOnly: true,
     items: [
       {
         title: "Default",
@@ -96,6 +103,7 @@ export const sidebarItems: NavGroup[] = [
   {
     id: 2,
     label: "Pages",
+    devOnly: true,
     items: [
       {
         title: "Email",
@@ -153,26 +161,31 @@ export const sidebarItems: NavGroup[] = [
         title: "Overview",
         url: "/dashboard/school",
         icon: LayoutDashboard,
+        roles: ["MD", "PRINCIPAL"],
       },
       {
         title: "Students",
         url: "/dashboard/school/students",
         icon: Users,
+        roles: ["MD", "PRINCIPAL"],
       },
       {
         title: "Teachers",
         url: "/dashboard/school/teachers",
         icon: GraduationCap,
+        roles: ["MD", "PRINCIPAL"],
       },
       {
         title: "Courses",
         url: "/dashboard/school/courses",
         icon: BookOpenCheck,
+        roles: ["MD", "PRINCIPAL"],
       },
       {
         title: "Classes",
         url: "/dashboard/school/classes",
         icon: Calendar,
+        roles: ["MD", "PRINCIPAL"],
       },
       {
         title: "Timetable",
@@ -183,16 +196,19 @@ export const sidebarItems: NavGroup[] = [
         title: "Teacher Portal",
         url: "/dashboard/school/teacher-portal",
         icon: ListTodo,
+        roles: ["TEACHER", "MD", "PRINCIPAL"],
       },
       {
         title: "Finance",
         url: "/dashboard/school/finance",
         icon: Banknote,
+        roles: ["MD", "PRINCIPAL"],
       },
       {
         title: "Student Portal",
         url: "/dashboard/school/student-portal",
         icon: GraduationCap,
+        roles: ["STUDENT", "PARENT"],
       },
     ],
   },
@@ -200,6 +216,7 @@ export const sidebarItems: NavGroup[] = [
   {
     id: 3,
     label: "Legacy",
+    devOnly: true,
     items: [
       {
         title: "Dashboards",
@@ -216,6 +233,7 @@ export const sidebarItems: NavGroup[] = [
   {
     id: 4,
     label: "Misc",
+    devOnly: true,
     items: [
       {
         title: "Others",

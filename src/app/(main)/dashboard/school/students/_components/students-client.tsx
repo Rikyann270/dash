@@ -1,26 +1,41 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
-import { 
-  Plus, Search, GraduationCap, Users, UserCheck, ShieldAlert,
-  Calendar, Phone, Mail, FileText, CheckCircle, Clock, XCircle, BookOpen
+import { useEffect, useState, useTransition } from "react";
+
+import {
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  FileText,
+  GraduationCap,
+  Mail,
+  Phone,
+  Plus,
+  Search,
+  UserCheck,
+  Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { 
-  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle 
-} from "@/components/ui/sheet";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+
+import { createStudent, getStudentDetails } from "@/app/actions/students";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getStudentDetails, createStudent } from "@/app/actions/students";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface StudentProfile {
   first_name: string;
@@ -32,7 +47,7 @@ interface StudentProfile {
 interface Student {
   id: string;
   enrollment_no: string;
-  program_type: 'CERTIFICATE' | 'DIPLOMA';
+  program_type: "CERTIFICATE" | "DIPLOMA";
   status: string;
   enrollment_date: string | null;
   profiles: StudentProfile | null;
@@ -63,7 +78,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
     async function loadDetails() {
       setIsDetailsLoading(true);
       try {
-        const data = await getStudentDetails(selectedStudent!.id);
+        const data = await getStudentDetails(selectedStudent?.id);
         setStudentDetails(data);
       } catch (err) {
         toast.error("Failed to load student record details.");
@@ -84,8 +99,8 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
   // Filtering Logic
   const filteredStudents = students.filter((student) => {
     const fullName = `${student.profiles?.first_name || ""} ${student.profiles?.last_name || ""}`.toLowerCase();
-    const searchMatch = 
-      fullName.includes(searchTerm.toLowerCase()) || 
+    const searchMatch =
+      fullName.includes(searchTerm.toLowerCase()) ||
       student.enrollment_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (student.profiles?.email || "").toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -97,9 +112,9 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
   // KPI calculations
   const totalCount = students.length;
-  const activeCount = students.filter(s => s.status === 'ACTIVE').length;
-  const diplomaCount = students.filter(s => s.program_type === 'DIPLOMA').length;
-  const certificateCount = students.filter(s => s.program_type === 'CERTIFICATE').length;
+  const activeCount = students.filter((s) => s.status === "ACTIVE").length;
+  const diplomaCount = students.filter((s) => s.program_type === "DIPLOMA").length;
+  const certificateCount = students.filter((s) => s.program_type === "CERTIFICATE").length;
 
   const handleAddStudent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -122,27 +137,29 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Enrolled</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Total Enrolled</CardTitle>
             <CardAction>
               <Users className="size-4 text-muted-foreground" />
             </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col">
-            <span className="text-3xl font-bold tracking-tight">{totalCount}</span>
-            <div className="text-xs text-muted-foreground mt-1">students registered</div>
+            <span className="font-bold text-3xl tracking-tight">{totalCount}</span>
+            <div className="mt-1 text-muted-foreground text-xs">students registered</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Roster</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Active Roster</CardTitle>
             <CardAction>
               <UserCheck className="size-4 text-emerald-500" />
             </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col">
-            <span className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">{activeCount}</span>
-            <div className="text-xs text-muted-foreground mt-1">
+            <span className="font-bold text-3xl text-emerald-600 tracking-tight dark:text-emerald-400">
+              {activeCount}
+            </span>
+            <div className="mt-1 text-muted-foreground text-xs">
               {totalCount > 0 ? ((activeCount / totalCount) * 100).toFixed(0) : 0}% active engagement
             </div>
           </CardContent>
@@ -150,46 +167,46 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Diploma Tracks</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Diploma Tracks</CardTitle>
             <CardAction>
               <GraduationCap className="size-4 text-muted-foreground" />
             </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col">
-            <span className="text-3xl font-bold tracking-tight">{diplomaCount}</span>
-            <div className="text-xs text-muted-foreground mt-1">2-year academic course</div>
+            <span className="font-bold text-3xl tracking-tight">{diplomaCount}</span>
+            <div className="mt-1 text-muted-foreground text-xs">2-year academic course</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Certificates</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Certificates</CardTitle>
             <CardAction>
               <FileText className="size-4 text-muted-foreground" />
             </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col">
-            <span className="text-3xl font-bold tracking-tight">{certificateCount}</span>
-            <div className="text-xs text-muted-foreground mt-1">vocational & technical skills</div>
+            <span className="font-bold text-3xl tracking-tight">{certificateCount}</span>
+            <div className="mt-1 text-muted-foreground text-xs">vocational & technical skills</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search students..." 
-            className="pl-9" 
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search students..."
+            className="pl-9"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:inline">Program:</span>
-            <NativeSelect 
+            <span className="hidden text-muted-foreground text-xs sm:inline">Program:</span>
+            <NativeSelect
               value={programFilter}
               onChange={(e) => setProgramFilter(e.target.value)}
               className="w-[140px] text-sm"
@@ -200,8 +217,8 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
             </NativeSelect>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:inline">Status:</span>
-            <NativeSelect 
+            <span className="hidden text-muted-foreground text-xs sm:inline">Status:</span>
+            <NativeSelect
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-[130px] text-sm"
@@ -259,7 +276,9 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
                   </NativeSelect>
                 </div>
                 <DialogFooter className="pt-2">
-                  <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+                    Cancel
+                  </Button>
                   <Button type="submit" disabled={isPending}>
                     {isPending ? "Registering..." : "Add Student"}
                   </Button>
@@ -286,18 +305,20 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
             {filteredStudents.map((student) => {
               const initials = `${student.profiles?.first_name?.[0] || ""}${student.profiles?.last_name?.[0] || ""}`;
               return (
-                <TableRow 
+                <TableRow
                   key={student.id}
                   onClick={() => setSelectedStudent(student)}
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  className="cursor-pointer transition-colors hover:bg-muted/50"
                 >
-                  <TableCell className="font-medium flex items-center gap-3">
+                  <TableCell className="flex items-center gap-3 font-medium">
                     <Avatar className="h-8 w-8 bg-muted">
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium text-foreground">{student.profiles?.first_name} {student.profiles?.last_name}</div>
-                      <div className="text-xs text-muted-foreground">{student.profiles?.email || 'N/A'}</div>
+                      <div className="font-medium text-foreground">
+                        {student.profiles?.first_name} {student.profiles?.last_name}
+                      </div>
+                      <div className="text-muted-foreground text-xs">{student.profiles?.email || "N/A"}</div>
                     </div>
                   </TableCell>
                   <TableCell className="font-mono text-xs">{student.enrollment_no}</TableCell>
@@ -307,12 +328,12 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={student.status === 'ACTIVE' ? 'default' : 'secondary'} className="rounded-sm">
+                    <Badge variant={student.status === "ACTIVE" ? "default" : "secondary"} className="rounded-sm">
                       {student.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">
-                    {student.enrollment_date ? new Date(student.enrollment_date).toLocaleDateString() : 'N/A'}
+                    {student.enrollment_date ? new Date(student.enrollment_date).toLocaleDateString() : "N/A"}
                   </TableCell>
                 </TableRow>
               );
@@ -320,9 +341,9 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
             {filteredStudents.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center h-48 text-muted-foreground">
+                <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
                   <div className="flex flex-col items-center justify-center gap-1.5">
-                    <Users className="h-8 w-8 text-muted-foreground/50 mb-1" />
+                    <Users className="mb-1 h-8 w-8 text-muted-foreground/50" />
                     <span className="font-medium">No students found</span>
                     <span className="text-xs">Try searching a different name or checking filters.</span>
                   </div>
@@ -336,83 +357,92 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
       {/* Student Details Sheet */}
       <Sheet open={selectedStudent !== null} onOpenChange={(open) => !open && setSelectedStudent(null)}>
         {selectedStudent && (
-          <SheetContent className="sm:max-w-[550px] overflow-y-auto">
-            <SheetHeader className="pb-4 border-b">
+          <SheetContent className="overflow-y-auto sm:max-w-[550px]">
+            <SheetHeader className="border-b pb-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 bg-primary/10">
-                  <AvatarFallback className="text-primary font-bold">
-                    {selectedStudent.profiles?.first_name?.[0]}{selectedStudent.profiles?.last_name?.[0]}
+                  <AvatarFallback className="font-bold text-primary">
+                    {selectedStudent.profiles?.first_name?.[0]}
+                    {selectedStudent.profiles?.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <SheetTitle className="text-xl">
                     {selectedStudent.profiles?.first_name} {selectedStudent.profiles?.last_name}
                   </SheetTitle>
-                  <SheetDescription className="text-xs font-mono">{selectedStudent.enrollment_no}</SheetDescription>
+                  <SheetDescription className="font-mono text-xs">{selectedStudent.enrollment_no}</SheetDescription>
                 </div>
               </div>
             </SheetHeader>
 
-            <div className="py-6 space-y-6">
+            <div className="space-y-6 py-6">
               {/* Contact Metadata Info Grid */}
-              <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-4 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 rounded-lg bg-muted/30 p-4 text-sm">
                 <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
                     <Mail className="h-3 w-3" /> Email
                   </div>
-                  <div className="font-medium truncate">{selectedStudent.profiles?.email || 'N/A'}</div>
+                  <div className="truncate font-medium">{selectedStudent.profiles?.email || "N/A"}</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
                     <Phone className="h-3 w-3" /> Phone
                   </div>
-                  <div className="font-medium">{selectedStudent.profiles?.phone || 'N/A'}</div>
+                  <div className="font-medium">{selectedStudent.profiles?.phone || "N/A"}</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
                     <GraduationCap className="h-3 w-3" /> Program
                   </div>
                   <div className="font-medium">{selectedStudent.program_type}</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
                     <Calendar className="h-3 w-3" /> Enrolled
                   </div>
                   <div className="font-medium">
-                    {selectedStudent.enrollment_date ? new Date(selectedStudent.enrollment_date).toLocaleDateString() : 'N/A'}
+                    {selectedStudent.enrollment_date
+                      ? new Date(selectedStudent.enrollment_date).toLocaleDateString()
+                      : "N/A"}
                   </div>
                 </div>
               </div>
 
               {/* Dynamic Loading Details Section */}
               {isDetailsLoading ? (
-                <div className="flex justify-center items-center h-32">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <div className="flex h-32 items-center justify-center">
+                  <div className="h-6 w-6 animate-spin rounded-full border-primary border-b-2" />
                 </div>
               ) : studentDetails ? (
                 <>
                   {/* Attendance Section */}
                   <div className="space-y-3">
-                    <h3 className="text-sm font-semibold flex items-center gap-1.5 text-foreground">
+                    <h3 className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
                       <CheckCircle className="h-4 w-4 text-primary" /> Recent Attendance
                     </h3>
                     <div className="space-y-2">
                       {studentDetails.attendance.map((att: any) => (
-                        <div key={att.id} className="flex items-center justify-between text-xs border-b pb-2">
+                        <div key={att.id} className="flex items-center justify-between border-b pb-2 text-xs">
                           <div>
                             <p className="font-medium text-foreground">{att.timetable_sessions?.subjects?.name}</p>
                             <p className="text-muted-foreground">{new Date(att.date).toLocaleDateString()}</p>
                           </div>
-                          <Badge 
-                            variant={att.status === 'PRESENT' ? 'default' : att.status === 'ABSENT' ? 'destructive' : 'secondary'}
-                            className="rounded-sm text-[10px] px-1.5"
+                          <Badge
+                            variant={
+                              att.status === "PRESENT"
+                                ? "default"
+                                : att.status === "ABSENT"
+                                  ? "destructive"
+                                  : "secondary"
+                            }
+                            className="rounded-sm px-1.5 text-[10px]"
                           >
                             {att.status}
                           </Badge>
                         </div>
                       ))}
                       {studentDetails.attendance.length === 0 && (
-                        <p className="text-xs text-muted-foreground py-2 text-center border border-dashed rounded">
+                        <p className="rounded border border-dashed py-2 text-center text-muted-foreground text-xs">
                           No attendance records found.
                         </p>
                       )}
@@ -421,12 +451,12 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
                   {/* Academic Grades Section */}
                   <div className="space-y-3">
-                    <h3 className="text-sm font-semibold flex items-center gap-1.5 text-foreground">
+                    <h3 className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
                       <BookOpen className="h-4 w-4 text-primary" /> Grades & Results
                     </h3>
                     <div className="space-y-2">
                       {studentDetails.results.map((result: any) => (
-                        <div key={result.id} className="flex items-center justify-between text-xs border-b pb-2">
+                        <div key={result.id} className="flex items-center justify-between border-b pb-2 text-xs">
                           <div>
                             <p className="font-medium text-foreground">{result.assessments?.title}</p>
                             <p className="text-muted-foreground">{result.assessments?.subjects?.name}</p>
@@ -436,13 +466,13 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
                               {result.marks_obtained} / {result.assessments?.total_marks}
                             </span>
                             <Badge variant="outline" className="ml-2 font-semibold">
-                              {result.grade || 'N/A'}
+                              {result.grade || "N/A"}
                             </Badge>
                           </div>
                         </div>
                       ))}
                       {studentDetails.results.length === 0 && (
-                        <p className="text-xs text-muted-foreground py-2 text-center border border-dashed rounded">
+                        <p className="rounded border border-dashed py-2 text-center text-muted-foreground text-xs">
                           No assessment records found.
                         </p>
                       )}
@@ -451,24 +481,34 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
                   {/* Financial Ledger Section */}
                   <div className="space-y-3">
-                    <h3 className="text-sm font-semibold flex items-center gap-1.5 text-foreground">
+                    <h3 className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
                       <FileText className="h-4 w-4 text-primary" /> Fee Invoices
                     </h3>
                     <div className="space-y-2">
                       {studentDetails.invoices.map((inv: any) => {
                         const balance = Number(inv.amount_due) - Number(inv.amount_paid);
                         return (
-                          <div key={inv.id} className="flex items-center justify-between text-xs border-b pb-2">
+                          <div key={inv.id} className="flex items-center justify-between border-b pb-2 text-xs">
                             <div>
-                              <p className="font-medium text-foreground">Due: {new Date(inv.due_date).toLocaleDateString()}</p>
+                              <p className="font-medium text-foreground">
+                                Due: {new Date(inv.due_date).toLocaleDateString()}
+                              </p>
                               <p className="text-muted-foreground">
                                 Total: ${inv.amount_due} · Paid: ${inv.amount_paid}
                               </p>
                             </div>
-                            <div className="text-right flex items-center gap-2">
-                              {balance > 0 && <span className="text-red-500 font-medium">${balance.toFixed(2)} due</span>}
-                              <Badge 
-                                variant={inv.status === 'PAID' ? 'default' : inv.status === 'PARTIAL' ? 'secondary' : 'destructive'}
+                            <div className="flex items-center gap-2 text-right">
+                              {balance > 0 && (
+                                <span className="font-medium text-red-500">${balance.toFixed(2)} due</span>
+                              )}
+                              <Badge
+                                variant={
+                                  inv.status === "PAID"
+                                    ? "default"
+                                    : inv.status === "PARTIAL"
+                                      ? "secondary"
+                                      : "destructive"
+                                }
                                 className="rounded-sm text-[10px]"
                               >
                                 {inv.status}
@@ -478,7 +518,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
                         );
                       })}
                       {studentDetails.invoices.length === 0 && (
-                        <p className="text-xs text-muted-foreground py-2 text-center border border-dashed rounded">
+                        <p className="rounded border border-dashed py-2 text-center text-muted-foreground text-xs">
                           No invoices found.
                         </p>
                       )}

@@ -1,463 +1,520 @@
+import Link from "next/link";
+
 import {
   AlertCircle,
+  ArrowRight,
   Award,
+  Bell,
+  BookMarked,
+  BookOpen,
   Calendar as CalendarIcon,
-  CheckCircle,
   CheckSquare,
-  Clock,
+  CreditCard,
   FileText,
   GraduationCap,
   MapPin,
   Percent,
   TrendingUp,
+  User,
+  UserCheck,
   Wallet,
 } from "lucide-react";
 
 import { getStudentDashboardData } from "@/app/actions/student-portal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 
 import { NotificationsCard } from "./_components/notifications-card";
+import { StudentAttendancePie } from "./_components/student-attendance-pie";
+import { StudentCalendar } from "./_components/student-calendar";
+import { StudentGradesTrend } from "./_components/student-grades-trend";
+
+export const dynamic = "force-dynamic";
 
 const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-export const dynamic = "force-dynamic";
+const quickActions = [
+  { label: "Full Timetable", icon: CalendarIcon, href: "#" },
+  { label: "Assignments", icon: FileText, href: "#" },
+  { label: "Materials", icon: BookOpen, href: "#" },
+  { label: "My Results", icon: Award, href: "#" },
+  { label: "Pay Fees", icon: CreditCard, href: "#" },
+  { label: "My Profile", icon: User, href: "#" },
+] as const;
 
 export default async function StudentPortalPage() {
   const data = await getStudentDashboardData();
 
   if (!data) {
     return (
-      <div className="flex flex-col gap-6 p-6 lg:p-8 w-full max-w-7xl mx-auto">
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-primary/10 via-primary/5 to-transparent p-8 border">
-          <h1 className="text-3xl font-extrabold tracking-tight mb-2">Student Portal</h1>
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 p-6">
+        <div className="rounded-xl border bg-card p-8 shadow-xs">
+          <h1 className="mb-2 text-3xl tracking-tight">Student Portal</h1>
           <p className="text-muted-foreground">No student profile found.</p>
         </div>
-        <div className="text-muted-foreground p-12 text-center border-2 border-dashed rounded-2xl bg-muted/10 flex flex-col items-center justify-center">
-          <AlertCircle className="h-12 w-12 mb-4 text-muted-foreground/50" />
-          <p className="text-lg font-medium">Please run the Supabase seed script to populate sample student data.</p>
+        <div className="flex flex-col items-center justify-center gap-4 rounded-xl border bg-muted/20 p-12 text-center text-muted-foreground">
+          <AlertCircle className="h-10 w-10 opacity-30" />
+          <p className="text-sm">Please run the Supabase seed script to populate sample student data.</p>
         </div>
       </div>
     );
   }
 
-  const { student, timetable, attendance, invoices, results, notifications } = data;
-
-  const totalDue = invoices.reduce((acc, inv) => acc + (Number(inv.amount_due) - Number(inv.amount_paid)), 0);
-  const totalBilled = invoices.reduce((acc, inv) => acc + Number(inv.amount_due), 0);
-  const paymentProgress = totalBilled > 0 ? ((totalBilled - totalDue) / totalBilled) * 100 : 100;
-
-  // Dynamic attendance rate calculation
-  const totalSessions = attendance.length;
-  const presentCount = attendance.filter((a) => a.status === "PRESENT" || a.status === "LATE").length;
-  const attendanceRate = totalSessions > 0 ? Math.round((presentCount / totalSessions) * 100) : 100;
+  const {
+    student,
+    primaryCohort,
+    displaySchedule,
+    attendanceRate,
+    results,
+    notifications,
+    greeting,
+    profileCompletion,
+    todaySummary,
+    myTasks,
+    academicSnapshot,
+    upcomingDeadlines,
+    weeklyAttendanceHistory,
+    feesSummary,
+  } = data;
 
   const initials = `${student.profiles?.first_name?.[0] || ""}${student.profiles?.last_name?.[0] || ""}`;
+  const _fullName = `${student.profiles?.first_name || ""} ${student.profiles?.last_name || ""}`.trim();
 
   return (
-    <div className="flex flex-col gap-8 p-6 lg:p-8 w-full max-w-7xl mx-auto">
-      {/* Premium Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-blue-600/10 via-primary/5 to-transparent border border-primary/10 shadow-sm">
-        <div className="absolute right-0 top-0 w-1/2 h-full bg-linear-to-l from-primary/10 to-transparent blur-3xl -z-10" />
-        <div className="absolute -left-10 -top-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl -z-10" />
-
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-8 relative z-10">
-          <Avatar className="h-20 w-20 border-4 border-background shadow-xl">
-            <AvatarFallback className="bg-linear-to-br from-primary to-blue-600 text-white font-bold text-2xl">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="space-y-2 flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold tracking-tight">Student Portal</h1>
-              <Badge
-                variant="secondary"
-                className="bg-primary/20 text-primary hover:bg-primary/30 border-none px-3 py-1 text-xs"
-              >
-                Active Student
-              </Badge>
-            </div>
-            <p className="text-muted-foreground text-base">
-              Welcome back,{" "}
-              <span className="text-foreground font-semibold">
-                {student.profiles?.first_name} {student.profiles?.last_name}
-              </span>
-              . Manage your academics and schedule below.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="group hover:border-primary/50 transition-all duration-300 hover:shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex justify-between items-center">
-              Academic Program
-              <GraduationCap className="h-4 w-4 text-blue-500" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold truncate">{student.program_type}</div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs text-muted-foreground">Status:</span>
-              <Badge
-                variant="outline"
-                className="text-[10px] py-0 px-2 bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-800"
-              >
-                {student.status}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group hover:border-emerald-500/50 transition-all duration-300 hover:shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex justify-between items-center">
-              Attendance Rate
-              <Percent className="h-4 w-4 text-emerald-500" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{attendanceRate}%</div>
-            </div>
-            <Progress
-              value={attendanceRate}
-              className="h-1.5 mt-3 bg-emerald-100 dark:bg-emerald-950"
-              indicatorClassName="bg-emerald-500"
-            />
-            <p className="text-[10px] text-muted-foreground mt-2">Based on last {totalSessions} classes</p>
-          </CardContent>
-        </Card>
-
-        <Card className="group hover:border-red-500/50 transition-all duration-300 hover:shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex justify-between items-center">
-              Outstanding Balance
-              <Wallet className="h-4 w-4 text-red-500" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-3xl font-bold ${totalDue > 0 ? "text-red-500" : "text-emerald-500"}`}>
-              ${totalDue.toFixed(2)}
-            </div>
-            <Progress
-              value={paymentProgress}
-              className="h-1.5 mt-3 bg-red-100 dark:bg-red-950"
-              indicatorClassName={totalDue > 0 ? "bg-red-500" : "bg-emerald-500"}
-            />
-            <p className="text-[10px] text-muted-foreground mt-2">
-              {totalDue > 0 ? `${paymentProgress.toFixed(0)}% paid of total billed` : "All clear, thank you!"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="group hover:border-violet-500/50 transition-all duration-300 hover:shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex justify-between items-center">
-              Recorded Grades
-              <Award className="h-4 w-4 text-violet-500" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">{results.length}</div>
-            <div className="flex items-center gap-1 mt-2">
-              <TrendingUp className="h-3 w-3 text-violet-500" />
-              <p className="text-xs text-muted-foreground">Assessments published</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-        {/* Left Column: Weekly Schedule & Attendance */}
-        <div className="lg:col-span-7 space-y-6 w-full">
-          {/* Timetable Schedule */}
-          <Card className="border-t-4 border-t-primary shadow-sm">
-            <CardHeader className="border-b bg-muted/20 pb-4">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-primary" /> Your Class Timetable
-              </CardTitle>
-              <CardDescription>Scheduled sessions for your cohort</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {timetable.map((session, index) => (
-                  <div
-                    key={session.id}
-                    className="group flex flex-col sm:flex-row sm:items-center gap-4 bg-background border rounded-xl p-4 hover:border-primary/40 hover:shadow-sm transition-all relative overflow-hidden"
-                  >
-                    {/* Decorative side bar */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/20 group-hover:bg-primary transition-colors" />
-
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="secondary"
-                          className="font-mono text-xs bg-primary/10 text-primary hover:bg-primary/20"
-                        >
-                          {session.subjects?.code}
-                        </Badge>
-                        <span className="font-bold text-foreground text-base">{session.subjects?.name}</span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-2">
-                        <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md">
-                          <Clock className="h-3.5 w-3.5" />
-                          <span className="font-medium">
-                            {session.start_time.substring(0, 5)} - {session.end_time.substring(0, 5)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md">
-                          <MapPin className="h-3.5 w-3.5" />
-                          <span className="font-medium">Room: {session.room || "TBA"}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 sm:border-l pt-3 sm:pt-0 sm:pl-4 mt-2 sm:mt-0">
-                      <Badge className="bg-foreground text-background hover:bg-foreground/90 font-semibold shadow-xs">
-                        {DAYS_OF_WEEK[session.day_of_week]}
-                      </Badge>
-                      <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
-                        <Avatar className="h-5 w-5">
-                          <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
-                            {session.teachers?.profiles?.first_name?.[0]}
-                            {session.teachers?.profiles?.last_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span>{session.teachers?.profiles?.last_name}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {timetable.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-10 text-muted-foreground border-2 border-dashed rounded-xl bg-muted/10">
-                    <CalendarIcon className="h-10 w-10 mb-3 opacity-20" />
-                    <p>No timetable schedule found for your cohort.</p>
-                  </div>
-                )}
+    <div className="grid gap-6 lg:grid-cols-12">
+      {/* ── Main Column (9/12) ── */}
+      <section className="lg:col-span-9">
+        <div className="flex flex-col gap-6">
+          {/* 1. Greeting Header */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <Avatar className="size-12 border">
+                <AvatarFallback className="bg-primary font-bold text-primary-foreground">{initials}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl text-foreground leading-none tracking-tight">
+                  {greeting}, {student.profiles?.first_name}.
+                </h1>
+                <p className="mt-1 text-lg text-muted-foreground leading-none">
+                  {primaryCohort?.name || "Senior Stream A"} · Term {primaryCohort?.semester || "1"} ·{" "}
+                  {primaryCohort?.year || "2026"}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* My Lessons (Academic Truth Engine) */}
-          <Card className="shadow-sm">
-            <CardHeader className="border-b bg-muted/20 pb-4">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-emerald-500" /> Lesson History
-              </CardTitle>
-              <CardDescription>Verified academic records from your classes</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                {attendance.map((record: any) => {
-                  const lesson = record.lesson_sessions;
-                  if (!lesson) return null;
-
-                  const subjectName = lesson.timetable_sessions?.subjects?.name;
-                  const topics =
-                    lesson.lesson_topics_covered?.map((tc: any) => tc.topics?.title).join(", ") || "General Review";
-
-                  return (
-                    <div
-                      key={record.id}
-                      className="flex flex-col border rounded-xl overflow-hidden hover:border-emerald-500/30 transition-colors"
-                    >
-                      <div className="flex items-center justify-between bg-muted/30 p-3 border-b">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`h-2 w-2 rounded-full ${record.status === "PRESENT" ? "bg-emerald-500" : record.status === "ABSENT" ? "bg-red-500" : "bg-yellow-500"}`}
-                          />
-                          <div>
-                            <p className="font-bold text-foreground text-sm">{subjectName}</p>
-                            <p className="text-[10px] text-muted-foreground">
-                              {new Date(lesson.date).toLocaleDateString(undefined, {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge
-                          variant={
-                            record.status === "PRESENT"
-                              ? "default"
-                              : record.status === "ABSENT"
-                                ? "destructive"
-                                : "secondary"
-                          }
-                          className="shadow-xs"
-                        >
-                          {record.status}
-                        </Badge>
-                      </div>
-
-                      <div className="p-4 space-y-3 bg-background">
-                        <div>
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-                            Topic Covered
-                          </span>
-                          <span className="text-sm font-medium">{topics}</span>
-                        </div>
-
-                        {lesson.homework_assigned && (
-                          <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
-                            <span className="text-xs font-semibold text-primary uppercase tracking-wider block mb-1">
-                              Homework
-                            </span>
-                            <span className="text-sm">{lesson.homework_assigned}</span>
-                          </div>
-                        )}
-
-                        {record.teacher_comments && (
-                          <div className="border-l-2 border-primary pl-3 py-1 italic">
-                            <span className="text-[10px] font-semibold text-muted-foreground uppercase block mb-0.5">
-                              Teacher Note
-                            </span>
-                            <span className="text-sm text-foreground">"{record.teacher_comments}"</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                {attendance.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground border-2 border-dashed rounded-xl bg-muted/10">
-                    <CheckCircle className="h-8 w-8 mb-2 opacity-20" />
-                    <p className="text-sm">No recent lessons found.</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Column: Grades & Financials */}
-        <div className="lg:col-span-5 space-y-6 w-full">
-          {/* Notifications Card */}
-          <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
-            <NotificationsCard initialNotifications={notifications} studentId={student.id} />
+            </div>
           </div>
 
-          {/* Academic Results */}
-          <Card className="shadow-sm">
-            <CardHeader className="border-b bg-muted/20 pb-4">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <CheckSquare className="h-5 w-5 text-violet-500" /> Grades & Performance
-              </CardTitle>
-              <CardDescription>Assessments and published scores</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0 px-0">
-              <div className="divide-y">
-                {results.map((result) => (
-                  <div
-                    key={result.id}
-                    className="flex items-center justify-between p-4 hover:bg-muted/10 transition-colors"
-                  >
-                    <div className="space-y-1">
-                      <p className="font-bold text-foreground text-sm">{result.assessments?.title}</p>
-                      <Badge variant="outline" className="text-[10px] text-muted-foreground bg-muted/20">
-                        {result.assessments?.subjects?.name}
-                      </Badge>
+          {/* 2. Today's Summary Cards */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="shadow-xs">
+              <CardHeader>
+                <CardTitle>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <div className="grid size-7 place-items-center rounded-lg border bg-muted">
+                      <CalendarIcon className="size-4" />
                     </div>
-                    <div className="text-right flex items-center gap-4">
-                      <div className="flex flex-col items-end">
-                        <div className="font-bold text-lg">
-                          {result.marks_obtained}{" "}
-                          <span className="text-muted-foreground text-xs font-normal">
-                            / {result.assessments?.total_marks}
-                          </span>
-                        </div>
-                        <Progress
-                          value={(result.marks_obtained / result.assessments?.total_marks) * 100}
-                          className="h-1.5 w-16 mt-1"
-                        />
-                      </div>
-                      <Badge
-                        className={`font-bold text-sm px-3 py-1 shadow-xs ${result.grade?.startsWith("A") ? "bg-emerald-500 hover:bg-emerald-600" : result.grade?.startsWith("B") ? "bg-blue-500 hover:bg-blue-600" : "bg-foreground"}`}
-                      >
-                        {result.grade || "N/A"}
-                      </Badge>
-                    </div>
+                    Today
                   </div>
-                ))}
-                {results.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    <Award className="h-8 w-8 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">No assessment marks published yet.</p>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-2">
+                  <div className="text-2xl leading-none tracking-tight">{todaySummary.classesCount}</div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground tabular-nums leading-none">classes scheduled</p>
+                    <ArrowRight className="size-4 text-muted-foreground" />
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Fee Ledger */}
-          <Card className="shadow-sm">
-            <CardHeader className="border-b bg-muted/20 pb-4">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-500" /> Financial Ledger
-              </CardTitle>
-              <CardDescription>Your bills and payments registry</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0 px-0">
+            <Card className="shadow-xs">
+              <CardHeader>
+                <CardTitle>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <div className="grid size-7 place-items-center rounded-lg border bg-muted">
+                      <Percent className="size-4" />
+                    </div>
+                    Attendance
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-2">
+                  <div className="text-2xl leading-none tracking-tight">{attendanceRate}%</div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground tabular-nums leading-none">this term</p>
+                    <ArrowRight className="size-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-xs">
+              <CardHeader>
+                <CardTitle>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <div className="grid size-7 place-items-center rounded-lg border bg-muted">
+                      <Bell className="size-4" />
+                    </div>
+                    Updates
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-2">
+                  <div className="text-2xl leading-none tracking-tight">{todaySummary.notificationsCount}</div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground tabular-nums leading-none">new notifications</p>
+                    <ArrowRight className="size-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 3. Today's Schedule (Tasks-style list) */}
+          <section className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl tracking-tight">Today&apos;s Schedule</h2>
+              <Badge variant="outline" className="font-normal">
+                {DAYS_OF_WEEK[new Date().getDay()]}
+              </Badge>
+            </div>
+            <div className="overflow-hidden rounded-xl border bg-background shadow-xs">
               <div className="divide-y">
-                {invoices.map((inv) => {
-                  const balance = Number(inv.amount_due) - Number(inv.amount_paid);
-                  return (
-                    <div key={inv.id} className="p-4 hover:bg-muted/10 transition-colors">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={
-                              inv.status === "PAID" ? "default" : inv.status === "PARTIAL" ? "secondary" : "destructive"
-                            }
-                            className={`shadow-xs ${inv.status === "PAID" ? "bg-emerald-500 hover:bg-emerald-600" : ""}`}
-                          >
-                            {inv.status}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground font-medium">
-                            Due {new Date(inv.due_date).toLocaleDateString()}
-                          </span>
-                        </div>
-                        {balance > 0 && (
-                          <div className="text-sm text-red-500 font-bold bg-red-500/10 px-2 py-0.5 rounded-md">
-                            ${balance.toFixed(2)} remaining
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex justify-between items-end">
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Total Billed</p>
-                          <p className="font-semibold">${inv.amount_due}</p>
-                        </div>
-                        <div className="space-y-1 text-right">
-                          <p className="text-xs text-muted-foreground">Amount Paid</p>
-                          <p className="font-semibold text-emerald-600 dark:text-emerald-400">${inv.amount_paid}</p>
-                        </div>
-                      </div>
-                      <Progress
-                        value={(Number(inv.amount_paid) / Number(inv.amount_due)) * 100}
-                        className="h-1.5 mt-3"
+                {displaySchedule.length === 0 ? (
+                  <div className="flex items-center justify-center p-8 text-muted-foreground text-sm">
+                    No classes scheduled for today.
+                  </div>
+                ) : (
+                  displaySchedule.map((session: any) => (
+                    <div key={session.id} className="flex items-center gap-3 p-4">
+                      <div
+                        className={`size-2 shrink-0 rounded-full ${session.isActive ? "bg-green-500" : "bg-muted-foreground/30"}`}
                       />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
+                            <span className="truncate text-sm">{session.subjects?.name}</span>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="px-3 py-1 font-normal text-xs">
+                                {session.subjects?.code}
+                              </Badge>
+                              {session.isActive && (
+                                <Badge className="bg-green-500 px-2 py-0.5 font-normal text-[10px] text-white">
+                                  Now
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-3 text-muted-foreground text-sm">
+                            <span className="tabular-nums">
+                              {session.start_time?.substring(0, 5)} – {session.end_time?.substring(0, 5)}
+                            </span>
+                            <div className="flex items-center gap-1 text-xs">
+                              <MapPin className="size-3" />
+                              <span>{session.room || "TBA"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  );
-                })}
-                {invoices.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    <Wallet className="h-8 w-8 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">No invoices generated yet.</p>
-                  </div>
+                  ))
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </section>
+
+          {/* 4. My Tasks */}
+          <section className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl tracking-tight">My Tasks & Alerts</h2>
+              <Button variant="outline" size="sm">
+                <CheckSquare className="mr-1.5 size-4" />
+                View All
+              </Button>
+            </div>
+            <div className="overflow-hidden rounded-xl border bg-background shadow-xs">
+              <div className="divide-y">
+                {myTasks.slice(0, 5).map((task: any) => (
+                  <div key={task.id} className="flex items-center gap-3 p-4">
+                    <Checkbox
+                      checked={task.status === "completed"}
+                      aria-label={task.title}
+                      disabled={task.type === "alert-present" || task.type === "alert-absent"}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4">
+                          <span className="truncate text-sm">{task.title}</span>
+                          <Badge variant="outline" className="w-fit px-3 py-1 font-normal text-xs">
+                            {task.type === "alert-present"
+                              ? "Present"
+                              : task.type === "alert-absent"
+                                ? "Absent"
+                                : task.type}
+                          </Badge>
+                        </div>
+                        <div className="shrink-0 text-muted-foreground text-xs">
+                          {task.badgeColor.replace(/^[^\s]*\s/, "")}
+                        </div>
+                      </div>
+                      {task.meta?.comment && (
+                        <p className="mt-1 text-muted-foreground text-xs italic">"{task.meta.comment}"</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Academic Snapshot — Projects-style grid */}
+          <section className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl tracking-tight">Academic Snapshot</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card className="shadow-xs">
+                <CardHeader>
+                  <CardTitle>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="size-4 text-muted-foreground" />
+                      <span>Average Grade</span>
+                    </div>
+                  </CardTitle>
+                  <CardAction>
+                    <Badge variant="outline">
+                      {academicSnapshot.assignmentsCompleted}/{academicSnapshot.assignmentsTotal} done
+                    </Badge>
+                  </CardAction>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-muted-foreground text-sm leading-none">Current performance</div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={academicSnapshot.classAverage} className="h-2" />
+                      <span className="shrink-0 text-sm">{academicSnapshot.classAverage}%</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="py-2.5">
+                  <span className="text-muted-foreground">Position: {academicSnapshot.classPosition}</span>
+                </CardFooter>
+              </Card>
+
+              <Card className="shadow-xs">
+                <CardHeader>
+                  <CardTitle>
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="size-4 text-muted-foreground" />
+                      <span>Credits</span>
+                    </div>
+                  </CardTitle>
+                  <CardAction>
+                    <Badge variant="outline">{academicSnapshot.creditsCompleted} / 60</Badge>
+                  </CardAction>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-muted-foreground text-sm leading-none">Credits completed</div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={(academicSnapshot.creditsCompleted / 60) * 100} className="h-2" />
+                      <span className="shrink-0 text-sm">
+                        {Math.round((academicSnapshot.creditsCompleted / 60) * 100)}%
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="py-2.5">
+                  <span className="text-muted-foreground">{academicSnapshot.upcomingExams} exams upcoming</span>
+                </CardFooter>
+              </Card>
+
+              <Card className="shadow-xs">
+                <CardHeader>
+                  <CardTitle>
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="size-4 text-muted-foreground" />
+                      <span>Attendance</span>
+                    </div>
+                  </CardTitle>
+                  <CardAction>
+                    <Badge variant="outline">{attendanceRate}%</Badge>
+                  </CardAction>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-muted-foreground text-sm leading-none">This term</div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={attendanceRate} className="h-2" />
+                      <span className="shrink-0 text-sm">{attendanceRate}%</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="py-2.5">
+                  <span className="text-muted-foreground">Profile {profileCompletion}% complete</span>
+                </CardFooter>
+              </Card>
+            </div>
+
+            {/* Charts row */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="shadow-xs">
+                <CardHeader>
+                  <CardTitle className="text-muted-foreground text-sm">Attendance Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <StudentAttendancePie rate={attendanceRate} />
+                </CardContent>
+              </Card>
+              <Card className="shadow-xs">
+                <CardHeader>
+                  <CardTitle className="text-muted-foreground text-sm">Grades Progression</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <StudentGradesTrend results={results} />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* 6. Quick Actions */}
+          <section className="flex flex-col gap-2">
+            <h2 className="text-xl tracking-tight">Quick Actions</h2>
+            <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">
+              {quickActions.map((action) => (
+                <Button key={action.label} variant="outline" className="justify-start" asChild>
+                  <Link href={action.href}>
+                    <action.icon className="mr-2 size-4" />
+                    {action.label}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </section>
+
+          {/* 7. Quote / Motivational Banner */}
+          <section className="rounded-2xl border bg-card p-6 shadow-xs">
+            <div className="flex items-start gap-4">
+              <div className="grid size-8 shrink-0 place-items-center text-muted-foreground">
+                <BookMarked className="size-6" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-xl leading-none tracking-tight">Stay consistent, stay ahead.</p>
+                <p className="text-muted-foreground">Every lesson attended builds your future.</p>
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
+      </section>
+
+      {/* ── Right Sidebar Column (3/12) ── */}
+      <section className="flex flex-col gap-6 lg:col-span-3">
+        {/* Calendar Panel */}
+        <StudentCalendar />
+
+        {/* Fees Overview */}
+        <Card className="shadow-xs">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wallet className="size-4 text-muted-foreground" />
+              Fees
+            </CardTitle>
+            <CardAction>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                Pay
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <p className="text-muted-foreground text-sm">
+              {feesSummary.totalDue > 0
+                ? `You have an outstanding balance. Please settle by the due date.`
+                : `You're all paid up. Great work!`}
+            </p>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">UGX {feesSummary.totalPaid.toLocaleString()} paid</span>
+                <span className="text-muted-foreground">
+                  {Math.round((feesSummary.totalPaid / (feesSummary.totalBilled || 1)) * 100)}%
+                </span>
+              </div>
+              <Progress value={(feesSummary.totalPaid / (feesSummary.totalBilled || 1)) * 100} className="h-2" />
+            </div>
+            {feesSummary.totalDue > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Balance due</span>
+                <span className="font-semibold">UGX {feesSummary.totalDue.toLocaleString()}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Notifications Card */}
+        <NotificationsCard initialNotifications={notifications} studentId={student.id} />
+
+        {/* Upcoming Deadlines */}
+        <Card className="shadow-xs">
+          <CardHeader>
+            <CardTitle>Upcoming</CardTitle>
+            <CardAction>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                View all
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {upcomingDeadlines.map((dl) => (
+              <div key={dl.id} className="flex items-start gap-3">
+                <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-sm leading-none">{dl.title}</div>
+                  <div className="mt-1 text-muted-foreground text-xs">
+                    {dl.day} · {dl.time}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Weekly Attendance Tracker */}
+        <Card className="shadow-xs">
+          <CardHeader>
+            <CardTitle>This Week</CardTitle>
+            <CardAction>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                View all
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <p className="text-muted-foreground text-sm">Your attendance record for this week.</p>
+            {weeklyAttendanceHistory.map((subj: any, sIdx: number) => (
+              <div key={sIdx} className="flex flex-col gap-2">
+                <div className="font-medium text-sm">{subj.subject}</div>
+                <div className="flex gap-1">
+                  {subj.days.map((d: any, dIdx: number) => (
+                    <div key={dIdx} className="flex flex-1 flex-col items-center gap-1" title={`${d.day}: ${d.status}`}>
+                      <span className="font-mono text-[9px] text-muted-foreground">{d.day}</span>
+                      <span
+                        className={`font-bold text-xs ${d.status === "present" ? "text-green-500" : "text-red-500"}`}
+                      >
+                        {d.status === "present" ? "✓" : "✗"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

@@ -1,24 +1,29 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { 
-  Plus, Banknote, DollarSign, Clock, CheckCircle, 
-  AlertTriangle, Receipt, Search, RefreshCw, BarChart3
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/native-select";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+
+import { AlertTriangle, Banknote, BarChart3, CheckCircle, Plus, Receipt, Search } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { toast } from "sonner";
+
+import { createInvoice, recordPayment } from "@/app/actions/finance";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { recordPayment, createInvoice } from "@/app/actions/finance";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Student {
   id: string;
@@ -35,7 +40,7 @@ interface Invoice {
   amount_due: number;
   amount_paid: number;
   due_date: string;
-  status: 'PAID' | 'PARTIAL' | 'UNPAID';
+  status: "PAID" | "PARTIAL" | "UNPAID";
   created_at: string | null;
   students: Student | null;
 }
@@ -78,9 +83,10 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
 
   // Filter logic
   const filteredInvoices = invoices.filter((inv) => {
-    const fullName = `${inv.students?.profiles?.first_name || ""} ${inv.students?.profiles?.last_name || ""}`.toLowerCase();
-    const searchMatch = 
-      fullName.includes(searchTerm.toLowerCase()) || 
+    const fullName =
+      `${inv.students?.profiles?.first_name || ""} ${inv.students?.profiles?.last_name || ""}`.toLowerCase();
+    const searchMatch =
+      fullName.includes(searchTerm.toLowerCase()) ||
       inv.students?.enrollment_no.toLowerCase().includes(searchTerm.toLowerCase());
 
     const statusMatch = statusFilter === "ALL" || inv.status === statusFilter;
@@ -90,15 +96,15 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
 
   // Chart Data preparation: group by month
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const monthlyData = months.map((m, idx) => ({ month: m, billed: 0, collected: 0 }));
-  invoices.forEach(inv => {
+  const monthlyData = months.map((m, _idx) => ({ month: m, billed: 0, collected: 0 }));
+  invoices.forEach((inv) => {
     const d = new Date(inv.created_at || inv.due_date);
     const mIdx = d.getMonth();
     monthlyData[mIdx].billed += Number(inv.amount_due);
     monthlyData[mIdx].collected += Number(inv.amount_paid);
   });
   // Keep only active months with values
-  const activeChartData = monthlyData.filter(d => d.billed > 0 || d.collected > 0);
+  const activeChartData = monthlyData.filter((d) => d.billed > 0 || d.collected > 0);
 
   const handleRecordPaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -141,29 +147,29 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Invoiced</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Total Invoiced</CardTitle>
             <CardAction>
               <Receipt className="size-4 text-muted-foreground" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight">${totalBilled.toFixed(2)}</span>
-            <div className="text-xs text-muted-foreground mt-1">tuition and technical fees billed</div>
+            <span className="font-bold text-3xl tracking-tight">${totalBilled.toFixed(2)}</span>
+            <div className="mt-1 text-muted-foreground text-xs">tuition and technical fees billed</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Collected</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Total Collected</CardTitle>
             <CardAction>
               <CheckCircle className="size-4 text-emerald-500" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+            <span className="font-bold text-3xl text-emerald-600 tracking-tight dark:text-emerald-400">
               ${totalCollected.toFixed(2)}
             </span>
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="mt-1 text-muted-foreground text-xs">
               {totalBilled > 0 ? ((totalCollected / totalBilled) * 100).toFixed(0) : 0}% collection rate
             </div>
           </CardContent>
@@ -171,14 +177,14 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">Outstanding Balances</CardTitle>
+            <CardTitle className="font-medium text-muted-foreground text-sm">Outstanding Balances</CardTitle>
             <CardAction>
               <AlertTriangle className="size-4 text-red-500" />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <span className="text-3xl font-bold tracking-tight text-red-500">${totalOutstanding.toFixed(2)}</span>
-            <div className="text-xs text-muted-foreground mt-1">pending student invoice collections</div>
+            <span className="font-bold text-3xl text-red-500 tracking-tight">${totalOutstanding.toFixed(2)}</span>
+            <div className="mt-1 text-muted-foreground text-xs">pending student invoice collections</div>
           </CardContent>
         </Card>
       </div>
@@ -188,15 +194,15 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
         <Card className="xl:col-span-8">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-bold flex items-center gap-1.5">
+              <CardTitle className="flex items-center gap-1.5 font-bold text-sm">
                 <BarChart3 className="h-4 w-4 text-primary" /> Fee Billing vs Collections
               </CardTitle>
-              <span className="text-xs text-muted-foreground">Monthly aggregates</span>
+              <span className="text-muted-foreground text-xs">Monthly aggregates</span>
             </div>
           </CardHeader>
           <CardContent className="h-70">
             {activeChartData.length === 0 ? (
-              <div className="h-full flex items-center justify-center border border-dashed rounded text-muted-foreground text-xs">
+              <div className="flex h-full items-center justify-center rounded border border-dashed text-muted-foreground text-xs">
                 No active billing billing records. Seed data to view chart.
               </div>
             ) : (
@@ -215,25 +221,25 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
         </Card>
 
         {/* Quick Summary Card */}
-        <Card className="xl:col-span-4 flex flex-col justify-between">
+        <Card className="flex flex-col justify-between xl:col-span-4">
           <CardHeader>
-            <CardTitle className="text-sm font-bold">Financial Summary</CardTitle>
+            <CardTitle className="font-bold text-sm">Financial Summary</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm flex-1 flex flex-col justify-center">
+          <CardContent className="flex flex-1 flex-col justify-center space-y-4 text-sm">
             <div className="flex justify-between border-b pb-2">
               <span className="text-muted-foreground">Paid Invoices:</span>
-              <span className="font-bold">{invoices.filter(i => i.status === 'PAID').length}</span>
+              <span className="font-bold">{invoices.filter((i) => i.status === "PAID").length}</span>
             </div>
             <div className="flex justify-between border-b pb-2">
               <span className="text-muted-foreground">Partial Invoices:</span>
-              <span className="font-bold">{invoices.filter(i => i.status === 'PARTIAL').length}</span>
+              <span className="font-bold">{invoices.filter((i) => i.status === "PARTIAL").length}</span>
             </div>
             <div className="flex justify-between border-b pb-2">
               <span className="text-muted-foreground">Unpaid Invoices:</span>
-              <span className="font-bold text-red-500">{invoices.filter(i => i.status === 'UNPAID').length}</span>
+              <span className="font-bold text-red-500">{invoices.filter((i) => i.status === "UNPAID").length}</span>
             </div>
           </CardContent>
-          <div className="p-4 border-t bg-muted/20 flex gap-2">
+          <div className="flex gap-2 border-t bg-muted/20 p-4">
             {/* Create Invoice Dialog */}
             <Dialog open={isInvoiceOpen} onOpenChange={setIsInvoiceOpen}>
               <DialogTrigger asChild>
@@ -245,15 +251,13 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
                 <form onSubmit={handleCreateInvoiceSubmit} className="space-y-4">
                   <DialogHeader>
                     <DialogTitle>Generate Fee Invoice</DialogTitle>
-                    <DialogDescription>
-                      Bill a student for tuition or structural courses.
-                    </DialogDescription>
+                    <DialogDescription>Bill a student for tuition or structural courses.</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-2">
                     <Label htmlFor="studentId">Select Student</Label>
                     <NativeSelect id="studentId" name="studentId" required>
                       <option value="">-- Choose Student --</option>
-                      {students.map(std => (
+                      {students.map((std) => (
                         <option key={std.id} value={std.id}>
                           {std.profiles?.first_name} {std.profiles?.last_name} ({std.enrollment_no})
                         </option>
@@ -262,14 +266,24 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="amountDue">Amount Due ($)</Label>
-                    <Input id="amountDue" name="amountDue" type="number" required placeholder="1500.00" min="1" step="0.01" />
+                    <Input
+                      id="amountDue"
+                      name="amountDue"
+                      type="number"
+                      required
+                      placeholder="1500.00"
+                      min="1"
+                      step="0.01"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="dueDate">Due Date</Label>
                     <Input id="dueDate" name="dueDate" type="date" required />
                   </div>
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsInvoiceOpen(false)}>Cancel</Button>
+                    <Button type="button" variant="outline" onClick={() => setIsInvoiceOpen(false)}>
+                      Cancel
+                    </Button>
                     <Button type="submit" disabled={isPending}>
                       {isPending ? "Generating..." : "Create Invoice"}
                     </Button>
@@ -283,24 +297,24 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
 
       {/* Ledger Table */}
       <Card>
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+        <CardHeader className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-base font-bold">Ledger Transactions</CardTitle>
+            <CardTitle className="font-bold text-base">Ledger Transactions</CardTitle>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative max-w-xs">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-              <Input 
-                placeholder="Search ledger..." 
-                className="pl-8 h-8 text-xs" 
+              <Search className="absolute top-2.5 left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search ledger..."
+                className="h-8 pl-8 text-xs"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <NativeSelect 
+            <NativeSelect
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-8 text-xs w-[120px]"
+              className="h-8 w-[120px] text-xs"
             >
               <option value="ALL">All Status</option>
               <option value="PAID">Paid</option>
@@ -330,21 +344,22 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
                     <div className="font-bold text-foreground">
                       {inv.students?.profiles?.first_name} {inv.students?.profiles?.last_name}
                     </div>
-                    <div className="text-xs text-muted-foreground font-mono">{inv.students?.enrollment_no}</div>
+                    <div className="font-mono text-muted-foreground text-xs">{inv.students?.enrollment_no}</div>
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
+                  <TableCell className="text-muted-foreground text-xs">
                     {new Date(inv.due_date).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="font-semibold">${Number(inv.amount_due).toFixed(2)}</TableCell>
-                  <TableCell className="text-emerald-600 dark:text-emerald-400">${Number(inv.amount_paid).toFixed(2)}</TableCell>
-                  <TableCell className={balance > 0 ? "text-red-500 font-semibold" : "text-muted-foreground font-mono"}>
+                  <TableCell className="text-emerald-600 dark:text-emerald-400">
+                    ${Number(inv.amount_paid).toFixed(2)}
+                  </TableCell>
+                  <TableCell className={balance > 0 ? "font-semibold text-red-500" : "font-mono text-muted-foreground"}>
                     ${balance.toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    <Badge 
+                    <Badge
                       variant={
-                        inv.status === 'PAID' ? 'default' : 
-                        inv.status === 'PARTIAL' ? 'secondary' : 'destructive'
+                        inv.status === "PAID" ? "default" : inv.status === "PARTIAL" ? "secondary" : "destructive"
                       }
                       className="rounded-sm text-[10px]"
                     >
@@ -352,9 +367,9 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {inv.status !== 'PAID' ? (
-                      <Button 
-                        variant="outline" 
+                    {inv.status !== "PAID" ? (
+                      <Button
+                        variant="outline"
                         size="xs"
                         onClick={() => {
                           setSelectedInvoice(inv);
@@ -364,7 +379,7 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
                         <Banknote className="mr-1 h-3 w-3" /> Pay
                       </Button>
                     ) : (
-                      <span className="text-xs text-muted-foreground italic pr-2">Cleared</span>
+                      <span className="pr-2 text-muted-foreground text-xs italic">Cleared</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -373,7 +388,7 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
 
             {filteredInvoices.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                   No invoices found.
                 </TableCell>
               </TableRow>
@@ -388,12 +403,10 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
           <form onSubmit={handleRecordPaymentSubmit} className="space-y-4">
             <DialogHeader>
               <DialogTitle>Record Payment</DialogTitle>
-              <DialogDescription>
-                Post manual payment to the student's ledger.
-              </DialogDescription>
+              <DialogDescription>Post manual payment to the student's ledger.</DialogDescription>
             </DialogHeader>
             {selectedInvoice && (
-              <div className="bg-muted/30 p-3.5 rounded text-xs space-y-2">
+              <div className="space-y-2 rounded bg-muted/30 p-3.5 text-xs">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Student:</span>
                   <span className="font-bold">
@@ -420,20 +433,22 @@ export function FinanceClient({ initialInvoices, students }: FinanceClientProps)
             )}
             <div className="space-y-2">
               <Label htmlFor="paymentAmount">Amount to Pay ($)</Label>
-              <Input 
-                id="paymentAmount" 
-                name="paymentAmount" 
-                type="number" 
-                required 
-                placeholder="0.00" 
-                min="0.01" 
-                step="0.01" 
+              <Input
+                id="paymentAmount"
+                name="paymentAmount"
+                type="number"
+                required
+                placeholder="0.00"
+                min="0.01"
+                step="0.01"
                 value={paymentAmount}
                 onChange={(e) => setPaymentAmount(e.target.value)}
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsPaymentOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setIsPaymentOpen(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending ? "Posting..." : "Post Payment"}
               </Button>

@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
 
 import { ChevronRight, MailIcon, PlusCircleIcon } from "lucide-react";
 
@@ -60,7 +61,7 @@ const NavItemExpanded = ({
               {item.icon && <item.icon />}
               <span>{item.title}</span>
               {item.title === "Student Portal" && studentUnreadCount > 0 && (
-                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-pulse">
+                <span className="ml-auto flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-primary font-bold text-[10px] text-primary-foreground">
                   {studentUnreadCount}
                 </span>
               )}
@@ -78,7 +79,7 @@ const NavItemExpanded = ({
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
                 {item.title === "Student Portal" && studentUnreadCount > 0 && (
-                  <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-pulse">
+                  <span className="ml-auto flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-primary font-bold text-[10px] text-primary-foreground">
                     {studentUnreadCount}
                   </span>
                 )}
@@ -130,7 +131,7 @@ const NavItemCollapsed = ({
             {item.icon && <item.icon />}
             <span>{item.title}</span>
             {item.title === "Student Portal" && studentUnreadCount > 0 && (
-              <span className="ml-auto flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="ml-auto flex h-2 w-2 animate-pulse rounded-full bg-primary" />
             )}
             <ChevronRight />
           </SidebarMenuButton>
@@ -169,13 +170,9 @@ export function NavMain({ items }: NavMainProps) {
       try {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
-        
+
         // Fetch first student for demo context
-        const { data: student } = await supabase
-          .from("students")
-          .select("id")
-          .limit(1)
-          .single();
+        const { data: student } = await supabase.from("students").select("id").limit(1).single();
 
         if (student) {
           const { count } = await supabase
@@ -183,7 +180,7 @@ export function NavMain({ items }: NavMainProps) {
             .select("*", { count: "exact", head: true })
             .eq("student_id", student.id)
             .eq("is_read", false);
-          
+
           setStudentUnreadCount(count || 0);
         }
       } catch (err) {
@@ -192,11 +189,11 @@ export function NavMain({ items }: NavMainProps) {
     }
 
     fetchUnread();
-    
+
     // Set up polling interval to fetch every 10 seconds
     const interval = setInterval(fetchUnread, 10000);
     return () => clearInterval(interval);
-  }, [path]); // Fetch again on navigation path changes
+  }, []); // Fetch again on navigation path changes
 
   const isItemActive = (url: string, subItems?: NavMainItem["subItems"]) => {
     if (subItems?.length) {
@@ -255,7 +252,7 @@ export function NavMain({ items }: NavMainProps) {
                             {item.icon && <item.icon />}
                             <span>{item.title}</span>
                             {item.title === "Student Portal" && studentUnreadCount > 0 && (
-                              <span className="ml-auto flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                              <span className="ml-auto flex h-2 w-2 animate-pulse rounded-full bg-primary" />
                             )}
                           </Link>
                         </SidebarMenuButton>
@@ -264,21 +261,21 @@ export function NavMain({ items }: NavMainProps) {
                   }
                   // Otherwise, render the dropdown as before
                   return (
-                    <NavItemCollapsed 
-                      key={item.title} 
-                      item={item} 
-                      isActive={isItemActive} 
-                      studentUnreadCount={studentUnreadCount} 
+                    <NavItemCollapsed
+                      key={item.title}
+                      item={item}
+                      isActive={isItemActive}
+                      studentUnreadCount={studentUnreadCount}
                     />
                   );
                 }
                 // Expanded view
                 return (
-                  <NavItemExpanded 
-                    key={item.title} 
-                    item={item} 
-                    isActive={isItemActive} 
-                    isSubmenuOpen={isSubmenuOpen} 
+                  <NavItemExpanded
+                    key={item.title}
+                    item={item}
+                    isActive={isItemActive}
+                    isSubmenuOpen={isSubmenuOpen}
                     studentUnreadCount={studentUnreadCount}
                   />
                 );
