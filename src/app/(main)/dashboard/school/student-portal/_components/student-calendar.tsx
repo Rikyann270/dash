@@ -8,10 +8,18 @@ import { enGB } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function StudentCalendar() {
+interface StudentCalendarProps {
+  timetable?: any[];
+}
+
+export function StudentCalendar({ timetable = [] }: StudentCalendarProps) {
   const today = startOfToday();
   const [date, setDate] = React.useState<Date | undefined>(today);
   const [currentMonth, setCurrentMonth] = React.useState<Date>(startOfMonth(today));
+
+  const activeDays = React.useMemo(() => {
+    return Array.from(new Set(timetable.map((t) => t.day_of_week)));
+  }, [timetable]);
 
   return (
     <Card className="w-full" size="sm">
@@ -25,6 +33,10 @@ export function StudentCalendar() {
           fixedWeeks
           locale={enGB}
           className="w-full p-0"
+          modifiers={{ hasClass: { dayOfWeek: activeDays } }}
+          modifiersClassNames={{
+            hasClass: "bg-primary/10 font-bold text-primary dark:bg-primary/20",
+          }}
         />
       </CardContent>
     </Card>

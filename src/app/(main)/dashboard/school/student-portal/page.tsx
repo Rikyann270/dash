@@ -416,7 +416,7 @@ export default async function StudentPortalPage() {
       {/* ── Right Sidebar Column (3/12) ── */}
       <section className="flex flex-col gap-6 lg:col-span-3">
         {/* Calendar Panel */}
-        <StudentCalendar />
+        <StudentCalendar timetable={data.timetable} />
 
         {/* Fees Overview */}
         <Card className="shadow-xs">
