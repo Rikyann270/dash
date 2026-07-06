@@ -10,19 +10,7 @@ export function SidebarSupportCard() {
     <Card size="sm" className="shadow-none group-data-[collapsible=icon]:hidden">
       <CardHeader className="px-4">
         <CardTitle className="text-sm">Looking for something more?</CardTitle>
-        <CardDescription>
-          Open an issue or do reach out to me on&nbsp;
-          <Link
-            href="https://x.com/arhamkhnz"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Reach out on X"
-            className="inline-flex items-center text-foreground"
-          >
-            <SimpleIcon icon={siX} aria-hidden className="size-3 fill-current" />
-          </Link>
-          .
-        </CardDescription>
+        <CardDescription>Open an issue or do reach out to me Ncc admin&nbsp; .</CardDescription>
       </CardHeader>
     </Card>
   );

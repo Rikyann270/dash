@@ -10,7 +10,7 @@ export async function getTimetableSessions() {
     .from("timetable_sessions")
     .select(`
       *,
-      classes(name),
+      classes(name, courses(id, name, code)),
       subjects(name, code),
       teachers(
         profiles(first_name, last_name)

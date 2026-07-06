@@ -21,12 +21,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ClassCohort {
   id: string;
   name: string;
+  courses?: {
+    id: string;
+    name: string;
+    code: string;
+  } | null;
 }
 
 interface Subject {
@@ -71,6 +77,23 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
   const [sessions, setSessions] = useState<TimetableSession[]>(initialSessions);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [courseFilter, setCourseFilter] = useState("ALL");
+
+  // Extract all unique courses for the filter dropdown
+  const allCourses = Array.from(
+    new Map(
+      sessions
+        .map((s) => s.classes?.courses)
+        .filter((c) => c != null)
+        .map((c) => [c!.id, c]),
+    ).values(),
+  );
+
+  // Filter logic
+  const filteredSessions = sessions.filter((session) => {
+    if (courseFilter === "ALL") return true;
+    return session.classes?.courses?.id === courseFilter;
+  });
 
   // Sync state
   useState(() => {
@@ -93,9 +116,9 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
   };
 
   // KPIs
-  const totalSessions = sessions.length;
-  const uniqueRooms = Array.from(new Set(sessions.map((s) => s.room).filter(Boolean))).length;
-  const assignedTeachers = Array.from(new Set(sessions.map((s) => s.teacher_id).filter(Boolean))).length;
+  const totalSessions = filteredSessions.length;
+  const uniqueRooms = Array.from(new Set(filteredSessions.map((s) => s.room).filter(Boolean))).length;
+  const assignedTeachers = Array.from(new Set(filteredSessions.map((s) => s.teacher_id).filter(Boolean))).length;
 
   return (
     <div className="space-y-6">
@@ -152,98 +175,117 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
             </TabsTrigger>
           </TabsList>
 
-          {/* Add Session Trigger Button */}
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="mr-1.5 h-4 w-4" /> Add Session
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[450px]">
-              <form onSubmit={handleAddSession} className="space-y-4">
-                <DialogHeader>
-                  <DialogTitle>Add Timetable Session</DialogTitle>
-                  <DialogDescription>
-                    Schedule a class period, assigning a subject, teacher, and room.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-2">
-                  <Label htmlFor="classId">Class Cohort</Label>
-                  <NativeSelect id="classId" name="classId" required>
-                    <option value="">-- Select Class --</option>
-                    {classes.map((cls) => (
-                      <option key={cls.id} value={cls.id}>
-                        {cls.name}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subjectId">Subject</Label>
-                  <NativeSelect id="subjectId" name="subjectId" required>
-                    <option value="">-- Select Subject --</option>
-                    {subjects.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name} ({sub.code})
-                      </option>
-                    ))}
-                  </NativeSelect>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="teacherId">Responsible Teacher</Label>
-                  <NativeSelect id="teacherId" name="teacherId" required>
-                    <option value="">-- Select Teacher --</option>
-                    {teachers.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.profiles?.first_name} {t.profiles?.last_name}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="hidden text-sm text-muted-foreground sm:inline">Course:</span>
+              <Select value={courseFilter} onValueChange={setCourseFilter}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="All Courses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Courses</SelectItem>
+                  {allCourses.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} ({c.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Add Session Trigger Button */}
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="mr-1.5 h-4 w-4" /> Add Session
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[450px]">
+                <form onSubmit={handleAddSession} className="space-y-4">
+                  <DialogHeader>
+                    <DialogTitle>Add Timetable Session</DialogTitle>
+                    <DialogDescription>
+                      Schedule a class period, assigning a subject, teacher, and room.
+                    </DialogDescription>
+                  </DialogHeader>
                   <div className="space-y-2">
-                    <Label htmlFor="dayOfWeek">Day</Label>
-                    <NativeSelect id="dayOfWeek" name="dayOfWeek" required>
-                      <option value="1">Monday</option>
-                      <option value="2">Tuesday</option>
-                      <option value="3">Wednesday</option>
-                      <option value="4">Thursday</option>
-                      <option value="5">Friday</option>
+                    <Label htmlFor="classId">Class Cohort</Label>
+                    <NativeSelect id="classId" name="classId" required>
+                      <option value="">-- Select Class --</option>
+                      {classes.map((cls) => (
+                        <option key={cls.id} value={cls.id}>
+                          {cls.name}
+                        </option>
+                      ))}
                     </NativeSelect>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="room">Room / Location</Label>
-                    <Input id="room" name="room" required placeholder="e.g. Lab 2" />
+                    <Label htmlFor="subjectId">Subject</Label>
+                    <NativeSelect id="subjectId" name="subjectId" required>
+                      <option value="">-- Select Subject --</option>
+                      {subjects.map((sub) => (
+                        <option key={sub.id} value={sub.id}>
+                          {sub.name} ({sub.code})
+                        </option>
+                      ))}
+                    </NativeSelect>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="startTime">Start Time</Label>
-                    <Input id="startTime" name="startTime" type="time" required defaultValue="09:00" />
+                    <Label htmlFor="teacherId">Responsible Teacher</Label>
+                    <NativeSelect id="teacherId" name="teacherId" required>
+                      <option value="">-- Select Teacher --</option>
+                      {teachers.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.profiles?.first_name} {t.profiles?.last_name}
+                        </option>
+                      ))}
+                    </NativeSelect>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endTime">End Time</Label>
-                    <Input id="endTime" name="endTime" type="time" required defaultValue="11:00" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="dayOfWeek">Day</Label>
+                      <NativeSelect id="dayOfWeek" name="dayOfWeek" required>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                      </NativeSelect>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="room">Room / Location</Label>
+                      <Input id="room" name="room" required placeholder="e.g. Lab 2" />
+                    </div>
                   </div>
-                </div>
-                <DialogFooter className="pt-2">
-                  <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending ? "Scheduling..." : "Schedule Session"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="startTime">Start Time</Label>
+                      <Input id="startTime" name="startTime" type="time" required defaultValue="09:00" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="endTime">End Time</Label>
+                      <Input id="endTime" name="endTime" type="time" required defaultValue="11:00" />
+                    </div>
+                  </div>
+                  <DialogFooter className="pt-2">
+                    <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isPending}>
+                      {isPending ? "Scheduling..." : "Schedule Session"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Weekly Grid View */}
         <TabsContent value="grid">
           <div className="mt-2 grid grid-cols-1 gap-4 lg:grid-cols-5">
             {WEEKDAYS.map((dayIndex) => {
-              const daySessions = sessions
+              const daySessions = filteredSessions
                 .filter((s) => s.day_of_week === dayIndex)
                 .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
@@ -321,7 +363,7 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sessions.map((session) => (
+                {filteredSessions.map((session) => (
                   <TableRow key={session.id}>
                     <TableCell className="font-bold">{DAYS_OF_WEEK[session.day_of_week]}</TableCell>
                     <TableCell className="font-mono text-xs">
@@ -341,7 +383,7 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
                   </TableRow>
                 ))}
 
-                {sessions.length === 0 && (
+                {filteredSessions.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                       No scheduled timetable sessions.

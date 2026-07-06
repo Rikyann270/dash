@@ -164,6 +164,13 @@ export const sidebarItems: NavGroup[] = [
         roles: ["MD", "PRINCIPAL"],
       },
       {
+        title: "Attendance Center",
+        url: "/dashboard/school/attendance-command-center",
+        icon: Kanban,
+        roles: ["MD", "PRINCIPAL"],
+        isNew: true,
+      },
+      {
         title: "Students",
         url: "/dashboard/school/students",
         icon: Users,
