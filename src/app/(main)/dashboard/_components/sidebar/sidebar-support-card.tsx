@@ -1,8 +1,3 @@
-import Link from "next/link";
-
-import { siX } from "simple-icons";
-
-import { SimpleIcon } from "@/components/simple-icon";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function SidebarSupportCard() {
@@ -10,7 +5,7 @@ export function SidebarSupportCard() {
     <Card size="sm" className="shadow-none group-data-[collapsible=icon]:hidden">
       <CardHeader className="px-4">
         <CardTitle className="text-sm">Looking for something more?</CardTitle>
-        <CardDescription>Open an issue or do reach out to me Ncc admin&nbsp; .</CardDescription>
+        <CardDescription>Reach out to the NCC administrator for support.</CardDescription>
       </CardHeader>
     </Card>
   );

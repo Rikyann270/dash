@@ -188,7 +188,7 @@ export function NavMain({ items }: NavMainProps) {
       }
     }
 
-    fetchUnread();
+    void fetchUnread();
 
     // Set up polling interval to fetch every 10 seconds
     const interval = setInterval(fetchUnread, 10000);

@@ -100,7 +100,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
       }
     }
 
-    loadDetails();
+    void loadDetails();
   }, [selectedStudent]);
 
   // Sync state with server props
@@ -110,9 +110,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
 
   // Extract all courses for filter options
   const allCourses = Array.from(
-    new Set(
-      students.map((s) => s.class_enrollments?.[0]?.classes?.courses?.code).filter(Boolean)
-    )
+    new Set(students.map((s) => s.class_enrollments?.[0]?.classes?.courses?.code).filter(Boolean)),
   ) as string[];
 
   // Filtering Logic
@@ -360,7 +358,7 @@ export function StudentsClient({ initialStudents }: StudentsClientProps) {
                   </TableCell>
                   <TableCell className="font-mono text-xs">{student.enrollment_no}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="rounded-sm text-xs font-mono">
+                    <Badge variant="secondary" className="rounded-sm font-mono text-xs">
                       {student.class_enrollments?.[0]?.classes?.courses?.code || "N/A"}
                     </Badge>
                   </TableCell>

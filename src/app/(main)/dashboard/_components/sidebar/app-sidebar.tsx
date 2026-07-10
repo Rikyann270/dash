@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { CircleHelp, ClipboardList, Command, Database, File, Search, Settings } from "lucide-react";
+import { CircleHelp, ClipboardList, Database, File, Search, Settings } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -61,7 +61,7 @@ const _data = {
 };
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  user?: any;
+  user?: unknown;
   appRole?: string;
   isDev?: boolean;
 };
@@ -105,8 +105,14 @@ export function AppSidebar({ user, appRole, isDev, ...props }: AppSidebarProps) 
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link prefetch={false} href="/dashboard/school">
-                <Command />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+                <img
+                  src={APP_CONFIG.logo}
+                  alt={APP_CONFIG.shortName}
+                  className="size-6 shrink-0 rounded-md object-contain"
+                />
+                <span className="truncate font-semibold text-base" title={APP_CONFIG.name}>
+                  {APP_CONFIG.name}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

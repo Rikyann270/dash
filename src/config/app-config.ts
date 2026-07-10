@@ -3,12 +3,13 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Studio Admin",
+  name: "Namasuba College of Commerce",
+  shortName: "NCC",
   version: packageJson.version,
-  copyright: `© ${currentYear}, Studio Admin.`,
+  copyright: `© ${currentYear}, Namasuba College of Commerce (NCC).`,
+  logo: "/Ncc _logo.png",
   meta: {
-    title: "Studio Admin - Modern Next.js Dashboard Starter Template",
-    description:
-      "Studio Admin is a modern, open-source dashboard starter template built with Next.js 16, Tailwind CSS v4, and shadcn/ui. Perfect for SaaS apps, admin panels, and internal tools—fully customizable and production-ready.",
+    title: "Namasuba College of Commerce (NCC) - Dashboard",
+    description: "Official admin and portal system for Namasuba College of Commerce (NCC).",
   },
 };

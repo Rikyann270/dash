@@ -115,18 +115,19 @@ export function LoginForm() {
         Login
       </Button>
 
-      {process.env.NODE_ENV === "development" && (
+      {/* biome-ignore lint/suspicious/noConstantBinaryExpressions: Dev block */}
+      {true && (
         <div className="mt-6 border-t pt-4">
-          <p className="mb-4 text-center text-muted-foreground text-sm">Developer Quick Login</p>
+          <p className="mb-4 text-center text-muted-foreground text-sm">Demo Quick Login</p>
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
               size="sm"
               type="button"
               onClick={() => {
-                form.setValue("email", "md_local@school.com");
+                form.setValue("email", "md_dev@school.com");
                 form.setValue("password", "password123");
-                onSubmit({ email: "md_local@school.com", password: "password123" });
+                void onSubmit({ email: "md_dev@school.com", password: "password123" });
               }}
             >
               MD
@@ -136,9 +137,9 @@ export function LoginForm() {
               size="sm"
               type="button"
               onClick={() => {
-                form.setValue("email", "teacher1_local@school.com");
+                form.setValue("email", "teacher1_dev@school.com");
                 form.setValue("password", "password123");
-                onSubmit({ email: "teacher1_local@school.com", password: "password123" });
+                void onSubmit({ email: "teacher1_dev@school.com", password: "password123" });
               }}
             >
               Teacher
@@ -148,9 +149,9 @@ export function LoginForm() {
               size="sm"
               type="button"
               onClick={() => {
-                form.setValue("email", "student1_local@school.com");
+                form.setValue("email", "student1_dev@school.com");
                 form.setValue("password", "password123");
-                onSubmit({ email: "student1_local@school.com", password: "password123" });
+                void onSubmit({ email: "student1_dev@school.com", password: "password123" });
               }}
             >
               Student
@@ -160,9 +161,9 @@ export function LoginForm() {
               size="sm"
               type="button"
               onClick={() => {
-                form.setValue("email", "principal_local@school.com");
+                form.setValue("email", "principal_dev@school.com");
                 form.setValue("password", "password123");
-                onSubmit({ email: "principal_local@school.com", password: "password123" });
+                void onSubmit({ email: "principal_dev@school.com", password: "password123" });
               }}
             >
               Principal

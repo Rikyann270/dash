@@ -35,7 +35,7 @@ export async function initiateLesson(
     .insert({
       timetable_session_id: timetableSessionId,
       date,
-      actual_teacher_id: actualTeacherId || teacherId,
+      actual_teacher_id: actualTeacherId ?? teacherId,
       status: "IN_PROGRESS",
       started_at: new Date().toISOString(),
     })

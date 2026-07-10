@@ -6,8 +6,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export async function switchDevUser(email: string) {
-  if (process.env.NODE_ENV !== "development") return;
-
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email,

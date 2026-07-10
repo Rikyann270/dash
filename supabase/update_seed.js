@@ -1,3 +1,4 @@
+// biome-ignore lint/style/noCommonJs: script file
 const fs = require("node:fs");
 const seedPath = "/Users/riky/namasuba/dash/supabase/seed.sql";
 const newCoursesPath = "/Users/riky/namasuba/dash/supabase/new_courses.sql";

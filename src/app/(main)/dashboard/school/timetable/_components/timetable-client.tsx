@@ -85,7 +85,7 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
       sessions
         .map((s) => s.classes?.courses)
         .filter((c) => c != null)
-        .map((c) => [c!.id, c]),
+        .map((c) => [c?.id, c]),
     ).values(),
   );
 
@@ -177,7 +177,7 @@ export function TimetableClient({ initialSessions, classes, subjects, teachers }
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="hidden text-sm text-muted-foreground sm:inline">Course:</span>
+              <span className="hidden text-muted-foreground text-sm sm:inline">Course:</span>
               <Select value={courseFilter} onValueChange={setCourseFilter}>
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="All Courses" />

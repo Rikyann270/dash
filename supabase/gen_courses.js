@@ -1,3 +1,4 @@
+// biome-ignore lint/style/noCommonJs: script file
 const fs = require("node:fs");
 
 const data = {

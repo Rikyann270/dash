@@ -1,13 +1,8 @@
 import type { ReactNode } from "react";
 
 import { cookies } from "next/headers";
-import Link from "next/link";
-
-import { siGithub } from "simple-icons";
 
 import { AppSidebar } from "@/app/(main)/dashboard/_components/sidebar/app-sidebar";
-import { SimpleIcon } from "@/components/simple-icon";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "@/lib/preferences/layout";
@@ -21,16 +16,16 @@ import { SearchDialog } from "./_components/sidebar/search-dialog";
 import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";
 
 const mockDevUsers = [
-  { email: "md_local@school.com", name: "Robert Kavuma", role: "MD" },
-  { email: "principal_local@school.com", name: "Sarah Nansubuga", role: "PRINCIPAL" },
-  { email: "teacher1_local@school.com", name: "John Mugisha", role: "TEACHER" },
-  { email: "student1_local@school.com", name: "Alex Smith", role: "STUDENT" },
-  { email: "parent1_local@school.com", name: "Grace Namaganda", role: "PARENT" },
+  { email: "md@school.com", name: "Robert Kavuma", role: "MD" },
+  { email: "principal@school.com", name: "Sarah Nansubuga", role: "PRINCIPAL" },
+  { email: "teacher1@school.com", name: "John Mugisha", role: "TEACHER" },
+  { email: "student1@school.com", name: "Alex Smith", role: "STUDENT" },
+  { email: "parent1@school.com", name: "Grace Namaganda", role: "PARENT" },
 ];
 
 export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
   const user = await getUser();
-  const isDev = process.env.NODE_ENV === "development";
+  const isDev = true; // Enabled for production presentation ease
 
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";

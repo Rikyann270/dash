@@ -39,8 +39,8 @@ export function AccountSwitcher({
 
   if (!user) return null;
 
-  const displayName = user.name || user.email?.split("@")[0] || "User";
-  const displayRole = user.appRole || user.role || "User";
+  const displayName = user.name ?? user.email?.split("@")[0] ?? "User";
+  const displayRole = user.appRole ?? user.role ?? "User";
 
   return (
     <DropdownMenu>
@@ -80,7 +80,7 @@ export function AccountSwitcher({
                   onClick={() => {
                     if (devUser.email && devUser.email !== user.email) {
                       startTransition(async () => {
-                        await switchDevUser(devUser.email!);
+                        await switchDevUser(devUser.email ?? "");
                       });
                     }
                   }}

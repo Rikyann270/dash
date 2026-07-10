@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Command } from "lucide-react";
+import { APP_CONFIG } from "@/config/app-config";
 
 import { LoginForm } from "../../_components/login-form";
 import { GoogleButton } from "../../_components/social-auth/google-button";
@@ -11,7 +11,11 @@ export default function LoginV1() {
       <div className="hidden bg-primary lg:block lg:w-1/3">
         <div className="flex h-full flex-col items-center justify-center p-12 text-center">
           <div className="space-y-6">
-            <Command className="mx-auto size-12 text-primary-foreground" />
+            <img
+              src={APP_CONFIG.logo}
+              alt={APP_CONFIG.shortName}
+              className="mx-auto size-16 rounded-xl bg-white object-contain p-2 shadow-md"
+            />
             <div className="space-y-2">
               <h1 className="font-light text-5xl text-primary-foreground">Hello again</h1>
               <p className="text-primary-foreground/80 text-xl">Login to continue</p>

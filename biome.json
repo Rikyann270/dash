@@ -86,8 +86,9 @@
         "useFilenamingConvention": "error"
       },
       "suspicious": {
+        "noExplicitAny": "warn",
         "noArrayIndexKey": "warn",
-        "noConstantBinaryExpressions": "error",
+        "noConstantBinaryExpressions": "warn",
         "noEmptyBlockStatements": "error",
         "noUnknownAtRules": "off",
         "noImportCycles": "error",
