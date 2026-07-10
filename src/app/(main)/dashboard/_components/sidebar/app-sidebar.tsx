@@ -61,7 +61,8 @@ const _data = {
 };
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  user?: unknown;
+  // biome-ignore lint/suspicious/noExplicitAny: user type from db
+  user?: any;
   appRole?: string;
   isDev?: boolean;
 };
