@@ -25,7 +25,7 @@ const mockDevUsers = [
 
 export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
   const user = await getUser();
-  const isDev = true; // Enabled for production presentation ease
+  const isDev = process.env.NODE_ENV === "development";
 
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";

@@ -10,10 +10,12 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
 import { createClient } from "@/lib/supabase/client";
 
 const formSchema = z
   .object({
+    role: z.enum(["STUDENT", "TEACHER", "PRINCIPAL", "MD"], { required_error: "Role is required" }),
     email: z.string().email({ message: "Please enter a valid email address." }),
     password: z.string().min(6, { message: "Password must be at least 6 characters." }),
     confirmPassword: z.string().min(6, { message: "Confirm Password must be at least 6 characters." }),
@@ -27,6 +29,7 @@ export function RegisterForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      role: "STUDENT",
       email: "",
       password: "",
       confirmPassword: "",
@@ -44,7 +47,7 @@ export function RegisterForm() {
       password: data.password,
       options: {
         data: {
-          role: "STUDENT",
+          role: data.role,
           first_name: data.email.split("@")[0],
           last_name: "",
         },
@@ -63,6 +66,22 @@ export function RegisterForm() {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <FieldGroup className="gap-4">
+        <Controller
+          control={form.control}
+          name="role"
+          render={({ field, fieldState }) => (
+            <Field className="gap-1.5" data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="register-role">Role</FieldLabel>
+              <NativeSelect {...field} id="register-role" aria-invalid={fieldState.invalid}>
+                <option value="STUDENT">Student</option>
+                <option value="TEACHER">Teacher</option>
+                <option value="PRINCIPAL">Principal</option>
+                <option value="MD">MD</option>
+              </NativeSelect>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
         <Controller
           control={form.control}
           name="email"
