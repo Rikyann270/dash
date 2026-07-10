@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const formSchema = z
   .object({
-    role: z.enum(["STUDENT", "TEACHER", "PRINCIPAL", "MD"], { required_error: "Role is required" }),
+    role: z.enum(["STUDENT", "TEACHER", "PRINCIPAL", "MD"] as const),
     email: z.string().email({ message: "Please enter a valid email address." }),
     password: z.string().min(6, { message: "Password must be at least 6 characters." }),
     confirmPassword: z.string().min(6, { message: "Confirm Password must be at least 6 characters." }),
